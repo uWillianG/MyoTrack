@@ -1,1 +1,21 @@
 ﻿@import "tailwindcss";
+
+/* Paleta de dataviz (referência validada — CVD-safe) */
+:root {
+  --viz-surface: #fcfcfb;
+  --viz-grid: #e1e0d9;
+  --viz-axis: #898781;
+  --viz-series-1: #2a78d6; /* azul — carga */
+  --viz-series-2: #199e70; /* aqua escuro — volume */
+  --viz-series-3: #4a3aa7; /* violeta — peso corporal */
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --viz-surface: #1a1a19;
+    --viz-grid: #2c2c2a;
+    --viz-axis: #898781;
+    --viz-series-1: #3987e5;
+    --viz-series-2: #199e70;
+    --viz-series-3: #9085e9;
+  }
+}

@@ -58,3 +58,23 @@ export async function api(path: string, init: RequestInit = {}): Promise<Respons
   }
   return response
 }
+
+export interface JobStatus {
+  id: string
+  type: string
+  status: 'Pending' | 'Processing' | 'Completed' | 'Failed'
+  resultJson: string | null
+  lastError: string | null
+}
+
+/** Aguarda um job assíncrono terminar (polling a cada 2 s, timeout ~2 min). */
+export async function pollJob(jobId: string): Promise<JobStatus> {
+  for (let i = 0; i < 60; i++) {
+    const response = await api(`/api/jobs/${jobId}`)
+    if (!response.ok) throw new Error('Falha ao consultar o status da geração.')
+    const job = (await response.json()) as JobStatus
+    if (job.status === 'Completed' || job.status === 'Failed') return job
+    await new Promise((r) => setTimeout(r, 2000))
+  }
+  throw new Error('A geração demorou mais do que o esperado. Tente novamente.')
+}

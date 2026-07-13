@@ -44,6 +44,8 @@ services:
     environment:
       DOTNET_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=myotrack;Username=myotrack;Password=${POSTGRES_PASSWORD:-dev-only-password}
+      Llm__AnthropicApiKey: ${ANTHROPIC_API_KEY:-}
+      Llm__Model: ${LLM_MODEL:-claude-opus-4-8}
     depends_on:
       postgres:
         condition: service_healthy

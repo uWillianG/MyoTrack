@@ -2,16 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using MyoTrack.Domain;
 using MyoTrack.Domain.Entities;
 using MyoTrack.Infrastructure;
+using MyoTrack.Infrastructure.Ai;
 
 namespace MyoTrack.Worker;
 
 /// <summary>
 /// Consome a fila de jobs de IA persistida no Postgres usando FOR UPDATE SKIP LOCKED,
 /// o que permite múltiplas instâncias do worker sem processamento duplicado.
-/// Os handlers por tipo de job entram nas Fases 1–3.
 /// </summary>
 public class JobPollerService(
-    IDbContextFactory<AppDbContext> dbFactory,
+    IServiceScopeFactory scopeFactory,
     ILogger<JobPollerService> logger) : BackgroundService
 {
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(2);
@@ -43,7 +43,9 @@ public class JobPollerService(
 
     private async Task<bool> ProcessNextJobAsync(CancellationToken ct)
     {
-        await using var db = await dbFactory.CreateDbContextAsync(ct);
+        using var scope = scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         await using var tx = await db.Database.BeginTransactionAsync(ct);
 
         var job = await db.AnalysisJobs
@@ -67,9 +69,16 @@ public class JobPollerService(
 
         try
         {
-            await HandleAsync(job, ct);
+            job.ResultJson = await HandleAsync(scope.ServiceProvider, job, ct);
             job.Status = JobStatus.Completed;
             job.CompletedAt = DateTimeOffset.UtcNow;
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Erro de negócio (perfil incompleto etc.) — não adianta reprocessar.
+            logger.LogWarning("Job {JobId} falhou por regra de negócio: {Message}", job.Id, ex.Message);
+            job.LastError = ex.Message;
+            job.Status = JobStatus.Failed;
         }
         catch (Exception ex)
         {
@@ -82,12 +91,25 @@ public class JobPollerService(
         return true;
     }
 
-    private Task HandleAsync(AnalysisJob job, CancellationToken ct) => job.Type switch
+    private static async Task<string?> HandleAsync(IServiceProvider services, AnalysisJob job, CancellationToken ct)
     {
-        // Handlers reais entram nas próximas fases:
-        // WorkoutGeneration / DietGeneration → Fase 1 (LLM)
-        // MealPhoto → Fase 2 (LLM multimodal)
-        // ExerciseVideo → Fase 3 (serviço Python/MediaPipe)
-        _ => throw new NotSupportedException($"Nenhum handler registrado para o tipo de job '{job.Type}'."),
-    };
+        switch (job.Type)
+        {
+            case AnalysisJobType.WorkoutGeneration:
+            {
+                var planId = await services.GetRequiredService<WorkoutGenerationService>()
+                    .GenerateAsync(job.UserId, ct);
+                return $$"""{"workoutPlanId":"{{planId}}"}""";
+            }
+            case AnalysisJobType.DietGeneration:
+            {
+                var planId = await services.GetRequiredService<DietGenerationService>()
+                    .GenerateAsync(job.UserId, ct);
+                return $$"""{"dietPlanId":"{{planId}}"}""";
+            }
+            // MealPhoto → Fase 2 (LLM multimodal); ExerciseVideo → Fase 3 (serviço Python/MediaPipe)
+            default:
+                throw new InvalidOperationException($"Nenhum handler registrado para o tipo de job '{job.Type}'.");
+        }
+    }
 }

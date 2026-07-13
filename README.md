@@ -53,7 +53,7 @@ O Caddy serve o frontend e faz proxy de `/api` para a API. Para TLS automático,
 ## Status do roadmap
 
 - [x] **Fase 0 — Fundação**: solução .NET, auth (Identity + JWT), modelo de dados + migration, seeds (exercícios e alimentos TACO), fila de jobs no Postgres, compose, CI
-- [ ] **Fase 1 — MVP**: perfil/onboarding, geração de treino e dieta (regras + LLM), registro de treinos, dashboards de progressão
+- [x] **Fase 1 — MVP**: perfil/onboarding com consentimento LGPD, geração de treino (regras + Claude API com fallback) e dieta (TDEE determinístico + LLM), registro de treinos e medidas, dashboards de progressão. Defina `ANTHROPIC_API_KEY` no `.env` para habilitar a personalização via LLM (sem a chave, o motor de regras gera os planos).
 - [ ] **Fase 2 — Análise de refeição por foto** (LLM multimodal)
 - [ ] **Fase 3 — Análise de vídeo de exercício** (MediaPipe)
 - [ ] **Fase 4 — Produto/SaaS**: supervisão humana, billing, hardening LGPD

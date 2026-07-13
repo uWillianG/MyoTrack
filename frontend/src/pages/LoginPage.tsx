@@ -31,7 +31,7 @@ export default function LoginPage() {
         return
       }
       storeTokens((await response.json()) as AuthResponse)
-      navigate('/')
+      navigate(mode === 'register' ? '/perfil' : '/')
     } finally {
       setLoading(false)
     }

@@ -6,6 +6,7 @@ const links = [
   { to: '/treino', label: 'Treino' },
   { to: '/dieta', label: 'Dieta' },
   { to: '/registrar', label: 'Registrar' },
+  { to: '/refeicoes', label: 'Refeições' },
   { to: '/perfil', label: 'Perfil' },
 ]
 

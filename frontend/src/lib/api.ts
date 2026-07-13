@@ -59,6 +59,22 @@ export async function api(path: string, init: RequestInit = {}): Promise<Respons
   return response
 }
 
+/** Variante do api() para multipart/form-data — o browser define o Content-Type com o boundary. */
+export async function apiUpload(path: string, body: FormData): Promise<Response> {
+  const request = () =>
+    fetch(path, {
+      method: 'POST',
+      body,
+      headers: getAccessToken() ? { Authorization: `Bearer ${getAccessToken()}` } : {},
+    })
+
+  let response = await request()
+  if (response.status === 401 && (await refreshTokens())) {
+    response = await request()
+  }
+  return response
+}
+
 export interface JobStatus {
   id: string
   type: string

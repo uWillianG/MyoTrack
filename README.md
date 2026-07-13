@@ -54,6 +54,6 @@ O Caddy serve o frontend e faz proxy de `/api` para a API. Para TLS automático,
 
 - [x] **Fase 0 — Fundação**: solução .NET, auth (Identity + JWT), modelo de dados + migration, seeds (exercícios e alimentos TACO), fila de jobs no Postgres, compose, CI
 - [x] **Fase 1 — MVP**: perfil/onboarding com consentimento LGPD, geração de treino (regras + Claude API com fallback) e dieta (TDEE determinístico + LLM), registro de treinos e medidas, dashboards de progressão. Defina `ANTHROPIC_API_KEY` no `.env` para habilitar a personalização via LLM (sem a chave, o motor de regras gera os planos).
-- [ ] **Fase 2 — Análise de refeição por foto** (LLM multimodal)
+- [x] **Fase 2 — Análise de refeição por foto**: upload de foto (JPEG/PNG/WebP até 10 MB) → job assíncrono → Claude vision identifica itens e porções, macros oficiais vêm do catálogo TACO quando há correspondência. Edição manual das quantidades pelo usuário, limite diário configurável (`Limits:MaxMealAnalysesPerDay`, padrão 10) e log de tokens por usuário (`AiUsageLog`). Requer `ANTHROPIC_API_KEY` (sem a chave o job falha com mensagem amigável).
 - [ ] **Fase 3 — Análise de vídeo de exercício** (MediaPipe)
 - [ ] **Fase 4 — Produto/SaaS**: supervisão humana, billing, hardening LGPD

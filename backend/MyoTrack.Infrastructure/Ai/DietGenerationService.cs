@@ -54,11 +54,24 @@ public class DietGenerationService(
 
         if (llm.IsConfigured)
         {
-            rawLlmOutput = await AssembleWithLlmAsync(profile, targets, catalog, ct);
-            if (rawLlmOutput is not null && TryParseAndValidate(rawLlmOutput, catalog, profile.DietaryRestrictions, out var llmDiet))
-                diet = AdjustQuantities(llmDiet, targets, foodsById);
-            else if (rawLlmOutput is not null)
-                logger.LogWarning("Saída do LLM inválida para o usuário {UserId}; usando dieta por regras.", userId);
+            var llmResult = await AssembleWithLlmAsync(profile, targets, catalog, ct);
+            if (llmResult is not null)
+            {
+                rawLlmOutput = llmResult.Json;
+                db.AiUsageLogs.Add(new AiUsageLog
+                {
+                    UserId = userId,
+                    Operation = AnalysisJobType.DietGeneration,
+                    Model = llm.Model,
+                    InputTokens = llmResult.InputTokens,
+                    OutputTokens = llmResult.OutputTokens,
+                });
+
+                if (TryParseAndValidate(rawLlmOutput, catalog, profile.DietaryRestrictions, out var llmDiet))
+                    diet = AdjustQuantities(llmDiet, targets, foodsById);
+                else
+                    logger.LogWarning("Saída do LLM inválida para o usuário {UserId}; usando dieta por regras.", userId);
+            }
         }
 
         var previous = await db.DietPlans
@@ -98,7 +111,7 @@ public class DietGenerationService(
         return entity.Id;
     }
 
-    private async Task<string?> AssembleWithLlmAsync(
+    private async Task<LlmJsonResult?> AssembleWithLlmAsync(
         UserProfile profile, MacroTargets targets, List<FoodItem> catalog, CancellationToken ct)
     {
         var system = """

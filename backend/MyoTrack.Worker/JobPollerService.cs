@@ -107,7 +107,13 @@ public class JobPollerService(
                     .GenerateAsync(job.UserId, ct);
                 return $$"""{"dietPlanId":"{{planId}}"}""";
             }
-            // MealPhoto → Fase 2 (LLM multimodal); ExerciseVideo → Fase 3 (serviço Python/MediaPipe)
+            case AnalysisJobType.MealPhoto:
+            {
+                var analysisId = await services.GetRequiredService<MealAnalysisService>()
+                    .AnalyzeAsync(job, ct);
+                return $$"""{"mealAnalysisId":"{{analysisId}}"}""";
+            }
+            // ExerciseVideo → Fase 3 (serviço Python/MediaPipe)
             default:
                 throw new InvalidOperationException($"Nenhum handler registrado para o tipo de job '{job.Type}'.");
         }

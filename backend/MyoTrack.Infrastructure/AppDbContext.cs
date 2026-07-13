@@ -27,6 +27,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<BodyMeasurement> BodyMeasurements => Set<BodyMeasurement>();
     public DbSet<AnalysisJob> AnalysisJobs => Set<AnalysisJob>();
+    public DbSet<MealPhotoAnalysis> MealPhotoAnalyses => Set<MealPhotoAnalysis>();
+    public DbSet<AiUsageLog> AiUsageLogs => Set<AiUsageLog>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -87,6 +89,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<BodyMeasurement>(e =>
         {
             e.HasIndex(m => new { m.UserId, m.Date });
+        });
+
+        builder.Entity<MealPhotoAnalysis>(e =>
+        {
+            e.HasIndex(a => new { a.UserId, a.CreatedAt });
+            e.HasIndex(a => a.AnalysisJobId).IsUnique();
+            e.Property(a => a.ItemsJson).HasColumnType("jsonb");
+        });
+
+        builder.Entity<AiUsageLog>(e =>
+        {
+            e.HasIndex(l => new { l.UserId, l.CreatedAt });
         });
 
         builder.Entity<AnalysisJob>(e =>

@@ -27,6 +27,11 @@ builder.Services
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddScoped<TokenService>();
 
+builder.Services.Configure<MyoTrack.Infrastructure.Storage.StorageOptions>(
+    builder.Configuration.GetSection(MyoTrack.Infrastructure.Storage.StorageOptions.SectionName));
+builder.Services.AddSingleton<MyoTrack.Infrastructure.Storage.IMediaStorage,
+    MyoTrack.Infrastructure.Storage.MinioMediaStorage>();
+
 var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
     ?? throw new InvalidOperationException("Seção de configuração 'Jwt' ausente.");
 

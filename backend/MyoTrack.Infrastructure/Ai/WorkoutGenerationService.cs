@@ -39,11 +39,24 @@ public class WorkoutGenerationService(
 
         if (llm.IsConfigured)
         {
-            rawLlmOutput = await PersonalizeWithLlmAsync(profile, skeleton, catalog, ct);
-            if (rawLlmOutput is not null && TryParseAndValidate(rawLlmOutput, skeleton, catalog, input, out var refined))
-                plan = refined;
-            else if (rawLlmOutput is not null)
-                logger.LogWarning("Saída do LLM inválida para o usuário {UserId}; mantendo esqueleto por regras.", userId);
+            var llmResult = await PersonalizeWithLlmAsync(profile, skeleton, catalog, ct);
+            if (llmResult is not null)
+            {
+                rawLlmOutput = llmResult.Json;
+                db.AiUsageLogs.Add(new AiUsageLog
+                {
+                    UserId = userId,
+                    Operation = AnalysisJobType.WorkoutGeneration,
+                    Model = llm.Model,
+                    InputTokens = llmResult.InputTokens,
+                    OutputTokens = llmResult.OutputTokens,
+                });
+
+                if (TryParseAndValidate(rawLlmOutput, skeleton, catalog, input, out var refined))
+                    plan = refined;
+                else
+                    logger.LogWarning("Saída do LLM inválida para o usuário {UserId}; mantendo esqueleto por regras.", userId);
+            }
         }
 
         // Arquiva planos ativos anteriores.
@@ -86,7 +99,7 @@ public class WorkoutGenerationService(
         return entity.Id;
     }
 
-    private async Task<string?> PersonalizeWithLlmAsync(
+    private async Task<LlmJsonResult?> PersonalizeWithLlmAsync(
         UserProfile profile, GeneratedWorkout skeleton, List<Exercise> catalog, CancellationToken ct)
     {
         var eligibleIds = skeleton.Days.SelectMany(d => d.Exercises).Select(e => e.ExerciseId).ToHashSet();

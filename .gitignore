@@ -1,0 +1,17 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Node
+node_modules/
+dist/
+
+# Ambiente
+.env
+*.local.json
+!appsettings.Development.json
+
+# IDE
+.idea/

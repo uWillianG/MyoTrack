@@ -1,0 +1,88 @@
+name: myotrack
+
+services:
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - frontend-dist:/srv
+      - caddy-data:/data
+    depends_on:
+      - api
+      - frontend
+
+  frontend:
+    build: ./frontend
+    volumes:
+      - frontend-dist:/srv
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: MyoTrack.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=myotrack;Username=myotrack;Password=${POSTGRES_PASSWORD:-dev-only-password}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:-dev-only-signing-key-change-me-in-production-0123456789}
+      Cors__AllowedOrigins__0: ${FRONTEND_ORIGIN:-http://localhost}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: MyoTrack.Worker/Dockerfile
+    environment:
+      DOTNET_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=myotrack;Username=myotrack;Password=${POSTGRES_PASSWORD:-dev-only-password}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: myotrack
+      POSTGRES_USER: myotrack
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev-only-password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myotrack -d myotrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-myotrack}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-dev-only-password}
+    volumes:
+      - minio-data:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
+  minio-data:
+  caddy-data:
+  frontend-dist:

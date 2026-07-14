@@ -90,3 +90,17 @@ public enum JobStatus
     Completed = 2,
     Failed = 3
 }
+
+/// <summary>Supervisão humana (Trainer/Nutritionist) sobre planos gerados por IA.</summary>
+public enum ReviewStatus
+{
+    NotReviewed = 0,
+    Approved = 1,
+    ChangesRequested = 2
+}
+
+public enum SubscriptionPlanType
+{
+    Free = 0,
+    Pro = 1
+}

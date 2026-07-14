@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { clearTokens } from '../lib/api'
+import { clearTokens, getRoles } from '../lib/api'
 
 const links = [
   { to: '/', label: 'Progresso' },
@@ -8,11 +8,16 @@ const links = [
   { to: '/registrar', label: 'Registrar' },
   { to: '/refeicoes', label: 'Refeições' },
   { to: '/videos', label: 'Vídeos' },
+  { to: '/assinatura', label: 'Assinatura' },
   { to: '/perfil', label: 'Perfil' },
 ]
 
+const reviewerRoles = ['Trainer', 'Nutritionist', 'Admin']
+
 export default function Layout() {
   const navigate = useNavigate()
+  const isReviewer = getRoles().some((r) => reviewerRoles.includes(r))
+  const navLinks = isReviewer ? [...links, { to: '/revisao', label: 'Revisão' }] : links
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
@@ -20,7 +25,7 @@ export default function Layout() {
         <div className="flex items-center gap-6">
           <span className="text-lg font-bold text-emerald-600">MyoTrack</span>
           <nav className="flex gap-1 overflow-x-auto">
-            {links.map((link) => (
+            {navLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}

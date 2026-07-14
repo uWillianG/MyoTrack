@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { api, pollJob } from '../lib/api'
+import { api, watchJob } from '../lib/api'
+import ReviewBadge from '../components/ReviewBadge'
 
 interface DietPlan {
   id: string
   name: string
   calorieGoal: string
+  reviewStatus: string
+  reviewNote: string | null
   targets: { targetKcal: number; targetProteinG: number; targetCarbsG: number; targetFatG: number }
   totals: { kcal: number; proteinG: number; carbsG: number; fatG: number }
   meals: {
@@ -57,7 +60,7 @@ export default function DietPlanPage() {
         return
       }
       const { jobId } = await response.json()
-      const job = await pollJob(jobId)
+      const job = await watchJob(jobId)
       if (job.status === 'Failed') {
         setError(job.lastError ?? 'A geração falhou.')
         return
@@ -75,14 +78,17 @@ export default function DietPlanPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          {plan ? plan.name : 'Sua dieta'}
-          {plan && (
-            <span className="ml-3 text-sm font-normal text-slate-500">
-              {goalLabels[plan.calorieGoal] ?? plan.calorieGoal}
-            </span>
-          )}
-        </h1>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            {plan ? plan.name : 'Sua dieta'}
+            {plan && (
+              <span className="ml-3 text-sm font-normal text-slate-500">
+                {goalLabels[plan.calorieGoal] ?? plan.calorieGoal}
+              </span>
+            )}
+          </h1>
+          {plan && <ReviewBadge reviewStatus={plan.reviewStatus} reviewNote={plan.reviewNote} />}
+        </div>
         <button onClick={generate} disabled={generating}
           className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-4 py-2 text-sm">
           {generating ? 'Gerando…' : plan ? 'Regenerar dieta' : 'Gerar dieta'}

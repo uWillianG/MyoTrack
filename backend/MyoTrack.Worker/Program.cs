@@ -21,6 +21,7 @@ builder.Services.AddScoped<MealAnalysisService>();
 builder.Services.AddScoped<VideoAnalysisService>();
 
 builder.Services.AddHostedService<JobPollerService>();
+builder.Services.AddHostedService<MediaRetentionService>();
 
 var host = builder.Build();
 host.Run();

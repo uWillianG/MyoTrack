@@ -22,7 +22,7 @@ public record MealItemAdjustment(
 public class MealAnalysesController(
     AppDbContext db,
     IMediaStorage storage,
-    IConfiguration configuration) : ApiControllerBase
+    MyoTrack.Api.Services.EntitlementService entitlements) : ApiControllerBase
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly string[] AllowedContentTypes = ["image/jpeg", "image/png", "image/webp"];
@@ -38,14 +38,19 @@ public class MealAnalysesController(
         if (!AllowedContentTypes.Contains(photo.ContentType))
             return BadRequest(new { error = "Formato não suportado. Use JPEG, PNG ou WebP." });
 
-        var dailyLimit = configuration.GetValue("Limits:MaxMealAnalysesPerDay", 10);
+        var entitlement = await entitlements.GetAsync(CurrentUserId);
         var since = DateTimeOffset.UtcNow.Date;
         var usedToday = await db.AnalysisJobs.CountAsync(j =>
             j.UserId == CurrentUserId &&
             j.Type == AnalysisJobType.MealPhoto &&
             j.CreatedAt >= since);
-        if (usedToday >= dailyLimit)
-            return StatusCode(429, new { error = $"Limite diário de {dailyLimit} análises de refeição atingido." });
+        if (usedToday >= entitlement.MaxMealAnalysesPerDay)
+            return StatusCode(429, new
+            {
+                error = entitlement.Plan == SubscriptionPlanType.Free
+                    ? $"Limite diário de {entitlement.MaxMealAnalysesPerDay} análises atingido. Assine o Pro para ampliar."
+                    : $"Limite diário de {entitlement.MaxMealAnalysesPerDay} análises de refeição atingido.",
+            });
 
         var extension = photo.ContentType switch
         {

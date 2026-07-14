@@ -75,6 +75,9 @@ public class DietPlansController(AppDbContext db) : ApiControllerBase
             CalorieGoal = plan.CalorieGoal.ToString(),
             plan.Version,
             plan.CreatedAt,
+            ReviewStatus = plan.ReviewStatus.ToString(),
+            plan.ReviewNote,
+            plan.ReviewedAt,
             Targets = new { plan.TargetKcal, plan.TargetProteinG, plan.TargetCarbsG, plan.TargetFatG },
             Totals = new
             {

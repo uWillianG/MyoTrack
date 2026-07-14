@@ -39,7 +39,8 @@ public class WorkoutGenerationService(
 
         if (llm.IsConfigured)
         {
-            var llmResult = await PersonalizeWithLlmAsync(profile, skeleton, catalog, ct);
+            var progression = await SummarizeProgressionAsync(userId, ct);
+            var llmResult = await PersonalizeWithLlmAsync(profile, skeleton, catalog, progression, ct);
             if (llmResult is not null)
             {
                 rawLlmOutput = llmResult.Json;
@@ -99,8 +100,29 @@ public class WorkoutGenerationService(
         return entity.Id;
     }
 
+    /// <summary>
+    /// Resume as últimas 8 semanas de SetLogs por exercício (melhor carga, volume e frequência)
+    /// para o LLM ajustar a progressão em vez de gerar um plano "do zero" a cada regeneração.
+    /// </summary>
+    private async Task<List<ExerciseProgression>> SummarizeProgressionAsync(Guid userId, CancellationToken ct)
+    {
+        var since = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-56));
+        return await db.SetLogs.AsNoTracking()
+            .Where(s => s.WorkoutSession.UserId == userId && s.WorkoutSession.Date >= since)
+            .GroupBy(s => new { s.ExerciseId, s.Exercise.Name })
+            .Select(g => new ExerciseProgression(
+                g.Key.Name,
+                g.Max(s => s.LoadKg),
+                Math.Round(g.Sum(s => s.LoadKg * s.Reps), 0),
+                g.Select(s => s.WorkoutSessionId).Distinct().Count()))
+            .OrderByDescending(p => p.VolumeTotalKg)
+            .Take(20)
+            .ToListAsync(ct);
+    }
+
     private async Task<LlmJsonResult?> PersonalizeWithLlmAsync(
-        UserProfile profile, GeneratedWorkout skeleton, List<Exercise> catalog, CancellationToken ct)
+        UserProfile profile, GeneratedWorkout skeleton, List<Exercise> catalog,
+        List<ExerciseProgression> progression, CancellationToken ct)
     {
         var eligibleIds = skeleton.Days.SelectMany(d => d.Exercises).Select(e => e.ExerciseId).ToHashSet();
         var eligible = catalog
@@ -114,6 +136,9 @@ public class WorkoutGenerationService(
             e escrever observações curtas e úteis em português para cada exercício.
             Regras invioláveis: use apenas exerciseId presentes na lista permitida; mantenha o mesmo número
             de dias; séries entre 2 e 5; repetições entre 5 e 30; descanso entre 30 e 240 segundos.
+            Quando houver histórico de progressão, prefira manter os exercícios que o aluno já pratica com
+            boa frequência e use as melhores cargas como referência nas observações (progressão gradual,
+            nunca saltos maiores que ~10% de carga).
             """;
 
         var user = JsonSerializer.Serialize(new
@@ -127,6 +152,14 @@ public class WorkoutGenerationService(
                 lesoes = profile.InjuryNotes,
                 gruposPriorizados = profile.PriorityMuscleGroups.Select(g => g.ToString()),
             },
+            // Últimas 8 semanas de treino real: melhor carga, volume total e nº de sessões por exercício.
+            progressaoRecente = progression.Select(p => new
+            {
+                exercicio = p.ExerciseName,
+                melhorCargaKg = p.BestLoadKg,
+                volumeTotalKg = p.VolumeTotalKg,
+                sessoes = p.Sessions,
+            }),
             esqueleto = skeleton,
             exerciciosPermitidos = eligible,
         }, JsonOptions);
@@ -220,6 +253,7 @@ public class WorkoutGenerationService(
         return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(schema)!;
     }
 
+    private sealed record ExerciseProgression(string ExerciseName, decimal BestLoadKg, decimal VolumeTotalKg, int Sessions);
     private sealed record LlmWorkout(List<LlmDay> Days);
     private sealed record LlmDay(int Order, string? Label, List<LlmExercise> Exercises);
     private sealed record LlmExercise(int ExerciseId, int Sets, int RepsMin, int RepsMax, int RestSeconds, string? Notes);

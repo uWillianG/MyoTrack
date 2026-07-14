@@ -33,6 +33,10 @@ services:
       Storage__AccessKey: ${MINIO_ROOT_USER:-myotrack}
       Storage__SecretKey: ${MINIO_ROOT_PASSWORD:-dev-only-password}
       Cors__AllowedOrigins__0: ${FRONTEND_ORIGIN:-http://localhost}
+      Billing__SecretKey: ${STRIPE_SECRET_KEY:-}
+      Billing__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
+      Billing__ProPriceId: ${STRIPE_PRO_PRICE_ID:-}
+      Billing__PublicBaseUrl: ${FRONTEND_ORIGIN:-http://localhost}
     depends_on:
       postgres:
         condition: service_healthy

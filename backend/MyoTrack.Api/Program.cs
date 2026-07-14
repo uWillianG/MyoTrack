@@ -27,6 +27,10 @@ builder.Services
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddScoped<TokenService>();
 
+builder.Services.Configure<MyoTrack.Api.Controllers.BillingOptions>(
+    builder.Configuration.GetSection(MyoTrack.Api.Controllers.BillingOptions.SectionName));
+builder.Services.AddScoped<EntitlementService>();
+
 builder.Services.Configure<MyoTrack.Infrastructure.Storage.StorageOptions>(
     builder.Configuration.GetSection(MyoTrack.Infrastructure.Storage.StorageOptions.SectionName));
 builder.Services.AddSingleton<MyoTrack.Infrastructure.Storage.IMediaStorage,
@@ -45,6 +49,17 @@ builder.Services
             ValidAudience = jwt.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
             ClockSkew = TimeSpan.FromSeconds(30),
+        };
+        options.Events = new JwtBearerEvents
+        {
+            // EventSource (SSE) não envia headers — aceita o token via query só nesse caminho.
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(token) && context.Request.Path.StartsWithSegments("/api/jobs"))
+                    context.Token = token;
+                return Task.CompletedTask;
+            },
         };
     });
 builder.Services.AddAuthorization();

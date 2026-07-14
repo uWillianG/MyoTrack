@@ -15,7 +15,7 @@ public record CreateVideoAnalysisRequest(string MediaKey, string Exercise);
 public class VideoAnalysesController(
     AppDbContext db,
     IMediaStorage storage,
-    IConfiguration configuration) : ApiControllerBase
+    MyoTrack.Api.Services.EntitlementService entitlements) : ApiControllerBase
 {
     private const long MaxVideoBytes = 100 * 1024 * 1024;
     private static readonly TimeSpan UploadUrlExpiry = TimeSpan.FromMinutes(15);
@@ -53,14 +53,19 @@ public class VideoAnalysesController(
         if (!request.MediaKey.StartsWith($"videos/{CurrentUserId}/", StringComparison.Ordinal))
             return BadRequest(new { error = "Chave de mídia inválida." });
 
-        var dailyLimit = configuration.GetValue("Limits:MaxVideoAnalysesPerDay", 5);
+        var entitlement = await entitlements.GetAsync(CurrentUserId);
         var since = DateTimeOffset.UtcNow.Date;
         var usedToday = await db.AnalysisJobs.CountAsync(j =>
             j.UserId == CurrentUserId &&
             j.Type == AnalysisJobType.ExerciseVideo &&
             j.CreatedAt >= since);
-        if (usedToday >= dailyLimit)
-            return StatusCode(429, new { error = $"Limite diário de {dailyLimit} análises de vídeo atingido." });
+        if (usedToday >= entitlement.MaxVideoAnalysesPerDay)
+            return StatusCode(429, new
+            {
+                error = entitlement.Plan == SubscriptionPlanType.Free
+                    ? $"Limite diário de {entitlement.MaxVideoAnalysesPerDay} análises de vídeo atingido. Assine o Pro para ampliar."
+                    : $"Limite diário de {entitlement.MaxVideoAnalysesPerDay} análises de vídeo atingido.",
+            });
 
         var info = await storage.GetObjectInfoAsync(request.MediaKey);
         if (info is null)
@@ -104,8 +109,13 @@ public class VideoAnalysesController(
             return NotFound();
 
         // URL do overlay (ou do original, como fallback) para reprodução no player.
-        var playbackKey = analysis.OverlayVideoKey ?? analysis.MediaKey;
-        var playbackUrl = await storage.GetPresignedDownloadUrlAsync(playbackKey, PlaybackUrlExpiry);
+        // Mídia expirada pela política de retenção não tem mais arquivo no storage.
+        string? playbackUrl = null;
+        if (analysis.MediaExpiredAt is null)
+        {
+            var playbackKey = analysis.OverlayVideoKey ?? analysis.MediaKey;
+            playbackUrl = await storage.GetPresignedDownloadUrlAsync(playbackKey, PlaybackUrlExpiry);
+        }
 
         return Ok(new
         {
@@ -115,6 +125,7 @@ public class VideoAnalysesController(
             analysis.Score,
             analysis.RepCount,
             PlaybackUrl = playbackUrl,
+            MediaExpired = analysis.MediaExpiredAt is not null,
             HasOverlay = analysis.OverlayVideoKey is not null,
             Result = JsonSerializer.Deserialize<JsonElement>(analysis.ResultJson),
         });

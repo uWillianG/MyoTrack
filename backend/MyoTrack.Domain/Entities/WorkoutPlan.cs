@@ -18,6 +18,12 @@ public class WorkoutPlan
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
+    // Supervisão humana (Fase 4): um Trainer pode aprovar ou pedir ajustes no plano gerado.
+    public ReviewStatus ReviewStatus { get; set; } = ReviewStatus.NotReviewed;
+    public Guid? ReviewedByUserId { get; set; }
+    public string? ReviewNote { get; set; }
+    public DateTimeOffset? ReviewedAt { get; set; }
+
     public List<WorkoutDay> Days { get; set; } = [];
 }
 

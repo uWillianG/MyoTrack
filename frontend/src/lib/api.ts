@@ -94,3 +94,45 @@ export async function pollJob(jobId: string, maxAttempts = 60): Promise<JobStatu
   }
   throw new Error('A geração demorou mais do que o esperado. Tente novamente.')
 }
+
+/**
+ * Aguarda um job via Server-Sent Events (um evento por mudança de estado);
+ * se o stream falhar (proxy, token expirado), cai para polling.
+ */
+export function watchJob(jobId: string, maxPollAttempts = 60): Promise<JobStatus> {
+  return new Promise((resolve, reject) => {
+    const token = getAccessToken()
+    if (!token) {
+      pollJob(jobId, maxPollAttempts).then(resolve, reject)
+      return
+    }
+    const source = new EventSource(`/api/jobs/${jobId}/stream?access_token=${encodeURIComponent(token)}`)
+    let settled = false
+    source.onmessage = (event) => {
+      const job = JSON.parse(event.data) as JobStatus & { error?: string }
+      if (job.error || job.status === 'Completed' || job.status === 'Failed') {
+        settled = true
+        source.close()
+        if (job.error) reject(new Error('Análise não encontrada.'))
+        else resolve(job)
+      }
+    }
+    source.onerror = () => {
+      source.close()
+      if (!settled) pollJob(jobId, maxPollAttempts).then(resolve, reject)
+    }
+  })
+}
+
+/** Papéis do usuário extraídos do access token (claim de role do JWT). */
+export function getRoles(): string[] {
+  const token = getAccessToken()
+  if (!token) return []
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+    const roles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? payload.role ?? []
+    return Array.isArray(roles) ? roles : [roles]
+  } catch {
+    return []
+  }
+}

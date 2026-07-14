@@ -57,6 +57,9 @@ public class WorkoutPlansController(AppDbContext db) : ApiControllerBase
         Goal = plan.Goal.ToString(),
         plan.Version,
         plan.CreatedAt,
+        ReviewStatus = plan.ReviewStatus.ToString(),
+        plan.ReviewNote,
+        plan.ReviewedAt,
         Days = plan.Days.Select(d => new
         {
             d.Id,

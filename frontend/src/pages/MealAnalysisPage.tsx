@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { api, apiUpload, pollJob } from '../lib/api'
+import { api, apiUpload, watchJob } from '../lib/api'
 
 interface MealItem {
   description: string
@@ -82,7 +82,7 @@ export default function MealAnalysisPage() {
         return
       }
       const { jobId } = await response.json()
-      const job = await pollJob(jobId)
+      const job = await watchJob(jobId)
       if (job.status === 'Failed') {
         setError(job.lastError ?? 'A análise falhou.')
         return

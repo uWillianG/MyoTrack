@@ -20,6 +20,12 @@ public class DietPlan
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
+    // Supervisão humana (Fase 4): um Nutritionist pode aprovar ou pedir ajustes no plano gerado.
+    public ReviewStatus ReviewStatus { get; set; } = ReviewStatus.NotReviewed;
+    public Guid? ReviewedByUserId { get; set; }
+    public string? ReviewNote { get; set; }
+    public DateTimeOffset? ReviewedAt { get; set; }
+
     public List<Meal> Meals { get; set; } = [];
 }
 

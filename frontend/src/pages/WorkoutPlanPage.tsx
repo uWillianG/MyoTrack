@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { api, pollJob } from '../lib/api'
+import { api, watchJob } from '../lib/api'
+import ReviewBadge from '../components/ReviewBadge'
 
 interface WorkoutPlan {
   id: string
   name: string
   split: string
   version: number
+  reviewStatus: string
+  reviewNote: string | null
   days: {
     id: string
     order: number
@@ -51,7 +54,7 @@ export default function WorkoutPlanPage() {
         return
       }
       const { jobId } = await response.json()
-      const job = await pollJob(jobId)
+      const job = await watchJob(jobId)
       if (job.status === 'Failed') {
         setError(job.lastError ?? 'A geração falhou.')
         return
@@ -69,9 +72,12 @@ export default function WorkoutPlanPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          {plan ? `${plan.name}` : 'Seu treino'}
-        </h1>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            {plan ? `${plan.name}` : 'Seu treino'}
+          </h1>
+          {plan && <ReviewBadge reviewStatus={plan.reviewStatus} reviewNote={plan.reviewNote} />}
+        </div>
         <button onClick={generate} disabled={generating}
           className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-4 py-2 text-sm">
           {generating ? 'Gerando… (pode levar até 1 min)' : plan ? 'Regenerar treino' : 'Gerar treino'}

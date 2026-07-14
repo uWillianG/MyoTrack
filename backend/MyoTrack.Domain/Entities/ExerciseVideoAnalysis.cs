@@ -26,4 +26,7 @@ public class ExerciseVideoAnalysis
     public string ResultJson { get; set; } = "{}";
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    /// <summary>Quando a mídia foi apagada do storage pela política de retenção (LGPD).</summary>
+    public DateTimeOffset? MediaExpiredAt { get; set; }
 }

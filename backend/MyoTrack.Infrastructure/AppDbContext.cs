@@ -30,6 +30,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<MealPhotoAnalysis> MealPhotoAnalyses => Set<MealPhotoAnalysis>();
     public DbSet<ExerciseVideoAnalysis> ExerciseVideoAnalyses => Set<ExerciseVideoAnalysis>();
     public DbSet<AiUsageLog> AiUsageLogs => Set<AiUsageLog>();
+    public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -110,6 +111,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<AiUsageLog>(e =>
         {
             e.HasIndex(l => new { l.UserId, l.CreatedAt });
+        });
+
+        builder.Entity<UserSubscription>(e =>
+        {
+            e.HasIndex(s => s.UserId).IsUnique();
+            e.HasIndex(s => s.StripeCustomerId);
         });
 
         builder.Entity<AnalysisJob>(e =>

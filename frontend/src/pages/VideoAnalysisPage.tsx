@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { api, pollJob } from '../lib/api'
+import { api, watchJob } from '../lib/api'
 
 interface VideoIssue {
   code: string
@@ -113,7 +113,7 @@ export default function VideoAnalysisPage() {
       setPhase('analyzing')
       const { jobId } = await createResponse.json()
       // Análise de vídeo é lenta (pose frame a frame) — até ~10 min de polling.
-      const job = await pollJob(jobId, 300)
+      const job = await watchJob(jobId, 300)
       if (job.status === 'Failed') {
         setError(job.lastError ?? 'A análise falhou.')
         return

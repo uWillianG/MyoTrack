@@ -12,7 +12,21 @@ public class UserSubscription
     public bool IsActive { get; set; }
     public string? StripeCustomerId { get; set; }
     public string? StripeSubscriptionId { get; set; }
+    /// <summary>Status bruto do Stripe (active, trialing, past_due, canceled…) para diagnóstico e UI.</summary>
+    public string? StripeStatus { get; set; }
     public DateTimeOffset? CurrentPeriodEnd { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+/// <summary>
+/// Eventos do Stripe já processados — o webhook pode reentregar o mesmo evento,
+/// e o registro garante idempotência (além de servir como trilha de auditoria).
+/// </summary>
+public class StripeEventLog
+{
+    /// <summary>Id do evento no Stripe (evt_...).</summary>
+    public string Id { get; set; } = null!;
+    public string Type { get; set; } = null!;
+    public DateTimeOffset ProcessedAt { get; set; } = DateTimeOffset.UtcNow;
 }

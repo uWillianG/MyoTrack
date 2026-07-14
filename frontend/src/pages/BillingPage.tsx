@@ -7,6 +7,8 @@ interface Billing {
   maxMealAnalysesPerDay: number
   maxVideoAnalysesPerDay: number
   currentPeriodEnd: string | null
+  paymentPastDue: boolean
+  hasStripeCustomer: boolean
   billingConfigured: boolean
 }
 
@@ -25,14 +27,14 @@ export default function BillingPage() {
     })
   }, [])
 
-  async function subscribe() {
+  async function redirectTo(path: string, failMessage: string) {
     setError(null)
     setRedirecting(true)
     try {
-      const response = await api('/api/billing/checkout', { method: 'POST' })
+      const response = await api(path, { method: 'POST' })
       const data = await response.json().catch(() => null)
       if (!response.ok) {
-        setError(data?.error ?? 'Falha ao iniciar o checkout.')
+        setError(data?.error ?? failMessage)
         return
       }
       window.location.href = data.url
@@ -40,6 +42,9 @@ export default function BillingPage() {
       setRedirecting(false)
     }
   }
+
+  const subscribe = () => redirectTo('/api/billing/checkout', 'Falha ao iniciar o checkout.')
+  const managePlan = () => redirectTo('/api/billing/portal', 'Falha ao abrir o portal de assinatura.')
 
   if (loading) return <p className="text-slate-500">Carregando…</p>
 
@@ -57,6 +62,12 @@ export default function BillingPage() {
       {checkoutStatus === 'cancelado' && (
         <p className="rounded-xl bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-300 px-4 py-3 text-sm border border-slate-200/70 dark:border-white/[0.06]">
           Checkout cancelado. Você continua no plano gratuito.
+        </p>
+      )}
+      {billing?.paymentPastDue && (
+        <p className="rounded-xl bg-amber-50 dark:bg-amber-400/10 text-amber-700 dark:text-amber-300 px-4 py-3 text-sm border border-amber-200/70 dark:border-amber-400/20">
+          Não conseguimos renovar sua assinatura. Atualize a forma de pagamento em "Gerenciar assinatura"
+          para não perder o acesso Pro.
         </p>
       )}
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -83,6 +94,11 @@ export default function BillingPage() {
           <p className="text-xs text-slate-400">
             Período atual até {new Date(billing.currentPeriodEnd).toLocaleDateString()}.
           </p>
+        )}
+        {billing?.hasStripeCustomer && billing?.billingConfigured && (
+          <button onClick={managePlan} disabled={redirecting} className="btn-secondary px-4 py-2 text-sm">
+            {redirecting ? 'Abrindo…' : 'Gerenciar assinatura'}
+          </button>
         )}
       </section>
 

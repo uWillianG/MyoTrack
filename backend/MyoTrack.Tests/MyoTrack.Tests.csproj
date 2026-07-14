@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MyoTrack.Domain\MyoTrack.Domain.csproj" />
     <ProjectReference Include="..\MyoTrack.Infrastructure\MyoTrack.Infrastructure.csproj" />
+    <ProjectReference Include="..\MyoTrack.Api\MyoTrack.Api.csproj" />
   </ItemGroup>
 
 </Project>

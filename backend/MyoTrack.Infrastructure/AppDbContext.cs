@@ -31,6 +31,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<ExerciseVideoAnalysis> ExerciseVideoAnalyses => Set<ExerciseVideoAnalysis>();
     public DbSet<AiUsageLog> AiUsageLogs => Set<AiUsageLog>();
     public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+    public DbSet<StripeEventLog> StripeEventLogs => Set<StripeEventLog>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -118,6 +119,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             e.HasIndex(s => s.UserId).IsUnique();
             e.HasIndex(s => s.StripeCustomerId);
+            e.HasIndex(s => s.StripeSubscriptionId);
+            e.Property(s => s.StripeStatus).HasMaxLength(50);
+        });
+
+        builder.Entity<StripeEventLog>(e =>
+        {
+            e.HasKey(l => l.Id);
+            e.Property(l => l.Id).HasMaxLength(255);
+            e.Property(l => l.Type).HasMaxLength(100);
         });
 
         builder.Entity<AnalysisJob>(e =>

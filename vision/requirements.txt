@@ -1,0 +1,8 @@
+fastapi==0.115.*
+uvicorn[standard]==0.34.*
+pydantic==2.*
+boto3==1.35.*
+numpy<2
+opencv-python-headless==4.10.*
+# 0.10.14 é a última versão com a API mp.solutions (removida nas mais novas em favor da Tasks API).
+mediapipe==0.10.14

@@ -7,6 +7,7 @@ import WorkoutPlanPage from './pages/WorkoutPlanPage'
 import DietPlanPage from './pages/DietPlanPage'
 import LogSessionPage from './pages/LogSessionPage'
 import MealAnalysisPage from './pages/MealAnalysisPage'
+import VideoAnalysisPage from './pages/VideoAnalysisPage'
 import { isAuthenticated } from './lib/api'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/dieta" element={<DietPlanPage />} />
           <Route path="/registrar" element={<LogSessionPage />} />
           <Route path="/refeicoes" element={<MealAnalysisPage />} />
+          <Route path="/videos" element={<VideoAnalysisPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

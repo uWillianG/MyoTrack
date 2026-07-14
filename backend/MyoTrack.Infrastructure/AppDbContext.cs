@@ -28,6 +28,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<BodyMeasurement> BodyMeasurements => Set<BodyMeasurement>();
     public DbSet<AnalysisJob> AnalysisJobs => Set<AnalysisJob>();
     public DbSet<MealPhotoAnalysis> MealPhotoAnalyses => Set<MealPhotoAnalysis>();
+    public DbSet<ExerciseVideoAnalysis> ExerciseVideoAnalyses => Set<ExerciseVideoAnalysis>();
     public DbSet<AiUsageLog> AiUsageLogs => Set<AiUsageLog>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -96,6 +97,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasIndex(a => new { a.UserId, a.CreatedAt });
             e.HasIndex(a => a.AnalysisJobId).IsUnique();
             e.Property(a => a.ItemsJson).HasColumnType("jsonb");
+        });
+
+        builder.Entity<ExerciseVideoAnalysis>(e =>
+        {
+            e.HasIndex(a => new { a.UserId, a.CreatedAt });
+            e.HasIndex(a => a.AnalysisJobId).IsUnique();
+            e.Property(a => a.AnalyzedExercise).HasMaxLength(50);
+            e.Property(a => a.ResultJson).HasColumnType("jsonb");
         });
 
         builder.Entity<AiUsageLog>(e =>

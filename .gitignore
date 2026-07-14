@@ -15,3 +15,7 @@ dist/
 
 # IDE
 .idea/
+
+# Python (servico vision)
+__pycache__/
+*.pyc

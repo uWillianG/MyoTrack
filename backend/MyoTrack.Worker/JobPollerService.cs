@@ -113,7 +113,12 @@ public class JobPollerService(
                     .AnalyzeAsync(job, ct);
                 return $$"""{"mealAnalysisId":"{{analysisId}}"}""";
             }
-            // ExerciseVideo → Fase 3 (serviço Python/MediaPipe)
+            case AnalysisJobType.ExerciseVideo:
+            {
+                var analysisId = await services.GetRequiredService<VideoAnalysisService>()
+                    .AnalyzeAsync(job, ct);
+                return $$"""{"videoAnalysisId":"{{analysisId}}"}""";
+            }
             default:
                 throw new InvalidOperationException($"Nenhum handler registrado para o tipo de job '{job.Type}'.");
         }

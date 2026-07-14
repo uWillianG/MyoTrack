@@ -15,6 +15,7 @@ namespace MyoTrack.Infrastructure.Ai;
 public class WorkoutGenerationService(
     AppDbContext db,
     ILlmJsonClient llm,
+    TikTokVideoService tikTok,
     ILogger<WorkoutGenerationService> logger)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
@@ -97,6 +98,19 @@ public class WorkoutGenerationService(
 
         db.WorkoutPlans.Add(entity);
         await db.SaveChangesAsync(ct);
+
+        // Vídeos explicativos do TikTok: resolvidos uma vez por exercício e
+        // reaproveitados por todos os usuários. Best-effort — não falha o job.
+        try
+        {
+            var exerciseIds = plan.Days.SelectMany(d => d.Exercises).Select(e => e.ExerciseId).Distinct().ToList();
+            await tikTok.ResolveMissingAsync(exerciseIds, ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Falha ao resolver vídeos do TikTok para o plano {PlanId}.", entity.Id);
+        }
+
         return entity.Id;
     }
 

@@ -18,6 +18,7 @@ interface WorkoutPlan {
       id: string
       exerciseName: string
       muscleGroup: string
+      tutorialVideoUrl: string | null
       sets: number
       repsMin: number
       repsMax: number
@@ -117,7 +118,22 @@ export default function WorkoutPlanPage() {
                   <tr key={e.id} className="border-b border-slate-100 dark:border-white/[0.05] last:border-0">
                     <td className="px-5 py-2.5">
                       {e.exerciseName}
-                      <span className="block text-xs text-slate-400">{e.muscleGroup}</span>
+                      <span className="block text-xs text-slate-400">
+                        {e.muscleGroup}
+                        {' · '}
+                        <a
+                          href={
+                            e.tutorialVideoUrl ??
+                            `https://www.tiktok.com/search?q=${encodeURIComponent(`como fazer ${e.exerciseName} academia`)}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-emerald-600 dark:text-emerald-400 hover:underline"
+                          title={e.tutorialVideoUrl ? 'Vídeo explicativo no TikTok' : 'Buscar vídeo no TikTok'}
+                        >
+                          ▶ ver como fazer
+                        </a>
+                      </span>
                     </td>
                     <td className="px-3 py-2.5">{e.sets}</td>
                     <td className="px-3 py-2.5">{e.repsMin}–{e.repsMax}</td>

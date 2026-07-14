@@ -71,6 +71,7 @@ public class WorkoutPlansController(AppDbContext db) : ApiControllerBase
                 e.ExerciseId,
                 ExerciseName = e.Exercise.Name,
                 MuscleGroup = e.Exercise.PrimaryMuscleGroup.ToString(),
+                e.Exercise.TutorialVideoUrl,
                 e.Sets,
                 e.RepsMin,
                 e.RepsMax,

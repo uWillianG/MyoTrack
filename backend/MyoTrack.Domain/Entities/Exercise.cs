@@ -12,5 +12,7 @@ public class Exercise
     /// <summary>Tags de contraindicação cruzadas com UserProfile.InjuryTags (ex.: "knee", "lower-back", "shoulder").</summary>
     public List<string> ContraindicationTags { get; set; } = [];
     public string? MediaUrl { get; set; }
+    /// <summary>Vídeo explicativo (TikTok) resolvido uma única vez e compartilhado por todos os usuários.</summary>
+    public string? TutorialVideoUrl { get; set; }
     public bool IsCompound { get; set; }
 }

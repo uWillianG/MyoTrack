@@ -56,6 +56,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             e.HasIndex(x => x.Name).IsUnique();
             e.Property(x => x.Name).HasMaxLength(200);
+            e.Property(x => x.TutorialVideoUrl).HasMaxLength(500);
         });
 
         builder.Entity<FoodItem>(e =>

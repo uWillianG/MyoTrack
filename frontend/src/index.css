@@ -1,4 +1,80 @@
-﻿@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/sora";
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    @apply antialiased scroll-smooth;
+  }
+
+  body {
+    @apply font-sans bg-[#f4f6f5] text-slate-700 dark:bg-[#080c0e] dark:text-slate-300;
+    /* Glows sutis de marca no fundo — dão profundidade sem competir com o conteúdo. */
+    background-image:
+      radial-gradient(55rem 32rem at 85% -8%, rgb(16 185 129 / 0.07), transparent 70%),
+      radial-gradient(45rem 30rem at -12% 35%, rgb(20 184 166 / 0.05), transparent 70%);
+    background-attachment: fixed;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-image:
+        radial-gradient(55rem 32rem at 85% -8%, rgb(16 185 129 / 0.1), transparent 70%),
+        radial-gradient(45rem 30rem at -12% 35%, rgb(13 148 136 / 0.08), transparent 70%);
+    }
+  }
+
+  ::selection {
+    @apply bg-emerald-500/25;
+  }
+}
+
+@layer components {
+  /* Superfície padrão: vidro leve, borda de 1px e sombra em camadas. */
+  .card {
+    @apply rounded-2xl border border-slate-200/80 bg-white/85 backdrop-blur-sm
+      shadow-[0_1px_2px_rgb(15_23_42/0.04),0_12px_32px_-16px_rgb(15_23_42/0.14)]
+      dark:border-white/[0.07] dark:bg-slate-900/70
+      dark:shadow-[0_1px_2px_rgb(0_0_0/0.5),0_16px_40px_-20px_rgb(0_0_0/0.7)];
+  }
+
+  .card-header-bg {
+    @apply bg-slate-50/80 border-b border-slate-200/70
+      dark:bg-white/[0.03] dark:border-white/[0.06];
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl
+      bg-linear-to-b from-emerald-500 to-emerald-600 px-4 py-2 text-sm font-semibold text-white
+      shadow-lg shadow-emerald-600/25 transition-all duration-150
+      hover:from-emerald-400 hover:to-emerald-600 hover:shadow-emerald-500/30
+      active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300/80
+      bg-white/70 px-4 py-2 text-sm font-semibold text-slate-700 transition-all duration-150
+      hover:bg-white hover:border-slate-400/70 active:scale-[0.98]
+      disabled:pointer-events-none disabled:opacity-50
+      dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:bg-white/[0.08];
+  }
+
+  .field {
+    @apply rounded-xl border border-slate-300/80 bg-white text-slate-900
+      placeholder:text-slate-400 outline-none transition-all duration-150
+      focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15
+      dark:border-white/10 dark:bg-white/[0.04] dark:text-white dark:placeholder:text-slate-500;
+  }
+
+  .page-title {
+    @apply font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white;
+  }
+}
 
 /* Paleta de dataviz (referência validada — CVD-safe) */
 :root {

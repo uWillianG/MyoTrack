@@ -139,12 +139,12 @@ export default function VideoAnalysisPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Análise de vídeo</h1>
+        <h1 className="page-title">Análise de vídeo</h1>
         <div className="flex items-center gap-2">
           <select
             value={exercise}
             onChange={(e) => setExercise(e.target.value)}
-            className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2 text-sm text-slate-900 dark:text-white"
+            className="field px-3 py-2 text-sm text-slate-900 dark:text-white"
           >
             {Object.entries(exerciseLabels).map(([value, label]) => (
               <option key={value} value={value}>{label}</option>
@@ -163,7 +163,7 @@ export default function VideoAnalysisPage() {
           <button
             onClick={() => fileInput.current?.click()}
             disabled={phase !== 'idle'}
-            className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-4 py-2 text-sm"
+            className="btn-primary px-4 py-2 text-sm"
           >
             {phase === 'uploading' ? 'Enviando…' : phase === 'analyzing' ? 'Analisando…' : 'Enviar vídeo'}
           </button>
@@ -178,7 +178,7 @@ export default function VideoAnalysisPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {phase === 'analyzing' && (
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-8 text-center text-slate-500 dark:text-slate-400">
+        <div className="card p-8 text-center text-slate-500 dark:text-slate-400">
           <p>Analisando o movimento frame a frame… isso pode levar alguns minutos.</p>
         </div>
       )}
@@ -186,25 +186,25 @@ export default function VideoAnalysisPage() {
       {analysis && (
         <>
           <section className="grid grid-cols-3 gap-3">
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+            <div className="card p-4">
               <p className="text-xs text-slate-500 dark:text-slate-400">Exercício</p>
               <p className="text-lg font-bold text-slate-900 dark:text-white">
                 {exerciseLabels[analysis.analyzedExercise] ?? analysis.analyzedExercise}
               </p>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+            <div className="card p-4">
               <p className="text-xs text-slate-500 dark:text-slate-400">Score</p>
               <p className="text-lg font-bold text-slate-900 dark:text-white">
                 {analysis.score !== null ? `${analysis.score}/100` : '—'}
               </p>
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+            <div className="card p-4">
               <p className="text-xs text-slate-500 dark:text-slate-400">Repetições</p>
               <p className="text-lg font-bold text-slate-900 dark:text-white">{analysis.repCount}</p>
             </div>
           </section>
 
-          <section className="bg-white dark:bg-slate-800 rounded-xl shadow overflow-hidden">
+          <section className="card overflow-hidden">
             <video ref={player} src={analysis.playbackUrl} controls className="w-full max-h-[28rem] bg-black" />
             {analysis.hasOverlay && (
               <p className="px-5 py-2 text-xs text-slate-400">
@@ -224,11 +224,11 @@ export default function VideoAnalysisPage() {
               Nenhum erro detectado pelas heurísticas. Boa execução!
             </div>
           ) : (
-            <section className="bg-white dark:bg-slate-800 rounded-xl shadow overflow-hidden">
-              <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-700/50">
+            <section className="card overflow-hidden">
+              <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg">
                 Pontos de atenção
               </h2>
-              <ul className="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
+              <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">
                 {analysis.result.issues.map((issue) => (
                   <li key={issue.code} className="px-5 py-3 text-slate-700 dark:text-slate-200">
                     <p>{issue.message}</p>
@@ -237,7 +237,7 @@ export default function VideoAnalysisPage() {
                         <button
                           key={i}
                           onClick={() => seekTo(t)}
-                          className="rounded bg-slate-100 dark:bg-slate-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 px-2 py-0.5 text-xs text-slate-600 dark:text-slate-300"
+                          className="rounded-lg bg-slate-100 dark:bg-white/[0.06] hover:bg-emerald-100 dark:hover:bg-emerald-900/40 px-2 py-0.5 text-xs text-slate-600 dark:text-slate-300"
                         >
                           ▶ {formatTime(t)}
                         </button>
@@ -256,8 +256,8 @@ export default function VideoAnalysisPage() {
         </>
       )}
 
-      <section className="bg-white dark:bg-slate-800 rounded-xl shadow overflow-hidden">
-        <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-700/50">
+      <section className="card overflow-hidden">
+        <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg">
           Histórico
         </h2>
         {history.length === 0 ? (
@@ -265,7 +265,7 @@ export default function VideoAnalysisPage() {
             Nenhuma análise ainda. Envie um vídeo de agachamento, terra ou desenvolvimento para começar.
           </p>
         ) : (
-          <ul className="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
+          <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">
             {history.map((entry) => (
               <li key={entry.id}>
                 <button

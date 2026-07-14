@@ -158,7 +158,7 @@ export default function MealAnalysisPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Refeições</h1>
+        <h1 className="page-title">Refeições</h1>
         <div>
           <input
             ref={fileInput}
@@ -173,7 +173,7 @@ export default function MealAnalysisPage() {
           <button
             onClick={() => fileInput.current?.click()}
             disabled={uploading}
-            className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-4 py-2 text-sm"
+            className="btn-primary px-4 py-2 text-sm"
           >
             {uploading ? 'Analisando…' : 'Analisar foto de refeição'}
           </button>
@@ -183,7 +183,7 @@ export default function MealAnalysisPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {uploading && (
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-8 text-center text-slate-500 dark:text-slate-400">
+        <div className="card p-8 text-center text-slate-500 dark:text-slate-400">
           <p>Analisando sua refeição com IA… isso leva alguns segundos.</p>
         </div>
       )}
@@ -197,7 +197,7 @@ export default function MealAnalysisPage() {
               ['Carboidrato', totals.carbs, 'g'],
               ['Gordura', totals.fat, 'g'],
             ].map(([label, value, unit]) => (
-              <div key={label as string} className="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+              <div key={label as string} className="card p-4">
                 <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">
                   {Math.round(value as number)}
@@ -207,8 +207,8 @@ export default function MealAnalysisPage() {
             ))}
           </section>
 
-          <section className="bg-white dark:bg-slate-800 rounded-xl shadow overflow-hidden">
-            <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-700/50 flex justify-between items-center">
+          <section className="card overflow-hidden">
+            <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg flex justify-between items-center">
               <span>
                 Itens identificados
                 {analysis.userAdjusted && !draft && (
@@ -234,7 +234,7 @@ export default function MealAnalysisPage() {
                 </span>
               )}
             </h2>
-            <ul className="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
+            <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">
               {items.map((item, index) => {
                 const m = itemMacros(item)
                 return (
@@ -255,7 +255,7 @@ export default function MealAnalysisPage() {
                           max={2000}
                           value={item.quantityG}
                           onChange={(e) => updateQuantity(index, Number(e.target.value))}
-                          className="w-20 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-2 py-1 text-right"
+                          className="w-20 field px-2 py-1 text-right"
                         />
                         <span className="text-slate-400">g</span>
                         <button
@@ -285,8 +285,8 @@ export default function MealAnalysisPage() {
         </>
       )}
 
-      <section className="bg-white dark:bg-slate-800 rounded-xl shadow overflow-hidden">
-        <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-700/50">
+      <section className="card overflow-hidden">
+        <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg">
           Histórico
         </h2>
         {history.length === 0 ? (
@@ -294,7 +294,7 @@ export default function MealAnalysisPage() {
             Nenhuma análise ainda. Envie a foto de um prato para começar.
           </p>
         ) : (
-          <ul className="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
+          <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">
             {history.map((entry) => (
               <li key={entry.id}>
                 <button

@@ -38,26 +38,35 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900 px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-xl shadow p-6 space-y-4"
+        className="w-full max-w-sm card p-8 space-y-4"
       >
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">MyoTrack</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          {mode === 'login' ? 'Entre na sua conta' : 'Crie sua conta'}
-        </p>
+        <div className="space-y-3 pb-2 text-center">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-400 to-teal-600 text-xl font-bold text-white shadow-lg shadow-emerald-600/30">
+            M
+          </span>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Myo<span className="text-emerald-500">Track</span>
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            {mode === 'login'
+              ? 'Seu personal trainer e nutricionista digital'
+              : 'Crie sua conta e comece a evoluir'}
+          </p>
+        </div>
 
         {mode === 'register' && (
           <input
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2 text-slate-900 dark:text-white"
+            className="w-full field px-3 py-2 text-slate-900 dark:text-white"
             placeholder="Nome"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
           />
         )}
         <input
-          className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2 text-slate-900 dark:text-white"
+          className="w-full field px-3 py-2 text-slate-900 dark:text-white"
           type="email"
           placeholder="E-mail"
           value={email}
@@ -65,7 +74,7 @@ export default function LoginPage() {
           required
         />
         <input
-          className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent px-3 py-2 text-slate-900 dark:text-white"
+          className="w-full field px-3 py-2 text-slate-900 dark:text-white"
           type="password"
           placeholder="Senha (mín. 8 caracteres)"
           value={password}
@@ -79,7 +88,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium py-2"
+          className="w-full btn-primary py-2.5"
         >
           {loading ? 'Aguarde…' : mode === 'login' ? 'Entrar' : 'Cadastrar'}
         </button>

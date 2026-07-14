@@ -47,21 +47,21 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Assinatura</h1>
+      <h1 className="page-title">Assinatura</h1>
 
       {checkoutStatus === 'sucesso' && (
-        <p className="rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-4 py-3 text-sm">
+        <p className="rounded-xl bg-emerald-50 dark:bg-emerald-400/10 text-emerald-700 dark:text-emerald-300 px-4 py-3 text-sm border border-emerald-200/70 dark:border-emerald-400/20">
           Pagamento confirmado! Seu plano Pro será ativado em instantes — recarregue a página se necessário.
         </p>
       )}
       {checkoutStatus === 'cancelado' && (
-        <p className="rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-4 py-3 text-sm">
+        <p className="rounded-xl bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-300 px-4 py-3 text-sm border border-slate-200/70 dark:border-white/[0.06]">
           Checkout cancelado. Você continua no plano gratuito.
         </p>
       )}
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <section className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 space-y-3">
+      <section className="card p-6 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-slate-900 dark:text-white">Plano atual</h2>
           <span
@@ -87,7 +87,7 @@ export default function BillingPage() {
       </section>
 
       {!isPro && (
-        <section className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 space-y-3 border-2 border-emerald-500/40">
+        <section className="card p-6 space-y-3 border-2 border-emerald-500/40">
           <h2 className="font-semibold text-slate-900 dark:text-white">MyoTrack Pro</h2>
           <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-1">
             <li>• 50 análises de refeição por dia</li>
@@ -98,7 +98,7 @@ export default function BillingPage() {
             <button
               onClick={subscribe}
               disabled={redirecting}
-              className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-4 py-2 text-sm"
+              className="btn-primary px-4 py-2 text-sm"
             >
               {redirecting ? 'Redirecionando…' : 'Assinar Pro'}
             </button>

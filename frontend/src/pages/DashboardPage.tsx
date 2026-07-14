@@ -31,7 +31,7 @@ function ChartCard({ title, subtitle, children }: {
   children: React.ReactNode
 }) {
   return (
-    <section className="bg-white dark:bg-slate-800 rounded-xl shadow p-5">
+    <section className="card p-5">
       <h2 className="font-semibold text-slate-900 dark:text-white">{title}</h2>
       {subtitle && <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">{subtitle}</p>}
       {children}
@@ -74,10 +74,10 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Seu progresso</h1>
+      <h1 className="page-title">Seu progresso</h1>
 
       {isEmpty && (
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-8 text-center text-slate-500 dark:text-slate-400">
+        <div className="card p-8 text-center text-slate-500 dark:text-slate-400">
           <p>Nenhum dado ainda.</p>
           <p className="text-sm mt-1">
             <Link to="/registrar" className="text-emerald-600 hover:underline">Registre seu primeiro treino</Link>{' '}
@@ -89,7 +89,7 @@ export default function DashboardPage() {
       {exercises.length > 0 && (
         <ChartCard title="Progressão de carga" subtitle="Carga máxima por sessão (kg)">
           <select
-            className="mb-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-1.5 text-sm text-slate-900 dark:text-white"
+            className="mb-3 field px-3 py-1.5 text-sm text-slate-900 dark:text-white"
             value={selectedExercise ?? ''}
             onChange={(e) => setSelectedExercise(Number(e.target.value))}
           >

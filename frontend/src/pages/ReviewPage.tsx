@@ -126,11 +126,11 @@ export default function ReviewPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Revisão de planos</h1>
+      <h1 className="page-title">Revisão de planos</h1>
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {detail ? (
-        <section className="bg-white dark:bg-slate-800 rounded-xl shadow p-5 space-y-4">
+        <section className="card p-5 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="font-semibold text-slate-900 dark:text-white">
               {detail.workout?.name ?? detail.diet?.name}
@@ -173,26 +173,26 @@ export default function ReviewPage() {
             </>
           )}
 
-          <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-white/[0.08]">
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Observações para o aluno (obrigatório ao sugerir ajustes)"
               rows={3}
-              className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white"
+              className="w-full field px-3 py-2 text-sm text-slate-900 dark:text-white"
             />
             <div className="flex gap-2">
               <button
                 onClick={() => decide('Approved')}
                 disabled={submitting}
-                className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-4 py-2 text-sm"
+                className="btn-primary px-4 py-2 text-sm"
               >
                 Aprovar
               </button>
               <button
                 onClick={() => decide('ChangesRequested')}
                 disabled={submitting}
-                className="rounded-lg bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-medium px-4 py-2 text-sm"
+                className="inline-flex items-center justify-center rounded-xl bg-linear-to-b from-amber-500 to-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-amber-600/25 transition-all duration-150 hover:from-amber-400 hover:to-amber-600 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
               >
                 Sugerir ajustes
               </button>
@@ -202,14 +202,14 @@ export default function ReviewPage() {
       ) : (
         <>
           {canReviewWorkouts && (
-            <section className="bg-white dark:bg-slate-800 rounded-xl shadow overflow-hidden">
-              <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-700/50">
+            <section className="card overflow-hidden">
+              <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg">
                 Treinos aguardando revisão ({workouts.length})
               </h2>
               {workouts.length === 0 ? (
                 <p className="px-5 py-4 text-sm text-slate-500">Nenhum treino pendente.</p>
               ) : (
-                <ul className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                <ul className="divide-y divide-slate-100 dark:divide-white/[0.06]">
                   {workouts.map((p) => (
                     <li key={p.id} className="px-5 py-3 flex items-center justify-between gap-3 flex-wrap">
                       <div className="text-sm">
@@ -232,14 +232,14 @@ export default function ReviewPage() {
           )}
 
           {canReviewDiets && (
-            <section className="bg-white dark:bg-slate-800 rounded-xl shadow overflow-hidden">
-              <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-700/50">
+            <section className="card overflow-hidden">
+              <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg">
                 Dietas aguardando revisão ({diets.length})
               </h2>
               {diets.length === 0 ? (
                 <p className="px-5 py-4 text-sm text-slate-500">Nenhuma dieta pendente.</p>
               ) : (
-                <ul className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                <ul className="divide-y divide-slate-100 dark:divide-white/[0.06]">
                   {diets.map((p) => (
                     <li key={p.id} className="px-5 py-3 flex items-center justify-between gap-3 flex-wrap">
                       <div className="text-sm">

@@ -73,13 +73,13 @@ export default function WorkoutPlanPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h1 className="page-title">
             {plan ? `${plan.name}` : 'Seu treino'}
           </h1>
           {plan && <ReviewBadge reviewStatus={plan.reviewStatus} reviewNote={plan.reviewNote} />}
         </div>
         <button onClick={generate} disabled={generating}
-          className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-4 py-2 text-sm">
+          className="btn-primary px-4 py-2 text-sm">
           {generating ? 'Gerando… (pode levar até 1 min)' : plan ? 'Regenerar treino' : 'Gerar treino'}
         </button>
       </div>
@@ -87,7 +87,7 @@ export default function WorkoutPlanPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {!plan && !generating && (
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-8 text-center text-slate-500 dark:text-slate-400">
+        <div className="card p-8 text-center text-slate-500 dark:text-slate-400">
           <p>Você ainda não tem um treino ativo.</p>
           <p className="text-sm mt-1">
             Complete o <Link to="/perfil" className="text-emerald-600 hover:underline">perfil</Link> e
@@ -97,14 +97,14 @@ export default function WorkoutPlanPage() {
       )}
 
       {plan?.days.map((day) => (
-        <section key={day.id} className="bg-white dark:bg-slate-800 rounded-xl shadow overflow-hidden">
-          <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-700/50">
+        <section key={day.id} className="card overflow-hidden">
+          <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg">
             {day.label}
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-slate-500 dark:text-slate-400">
-                <tr className="border-b border-slate-200 dark:border-slate-700">
+                <tr className="border-b border-slate-200 dark:border-white/[0.08]">
                   <th className="px-5 py-2 font-medium">Exercício</th>
                   <th className="px-3 py-2 font-medium">Séries</th>
                   <th className="px-3 py-2 font-medium">Reps</th>
@@ -114,7 +114,7 @@ export default function WorkoutPlanPage() {
               </thead>
               <tbody className="text-slate-700 dark:text-slate-200">
                 {day.exercises.map((e) => (
-                  <tr key={e.id} className="border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                  <tr key={e.id} className="border-b border-slate-100 dark:border-white/[0.05] last:border-0">
                     <td className="px-5 py-2.5">
                       {e.exerciseName}
                       <span className="block text-xs text-slate-400">{e.muscleGroup}</span>

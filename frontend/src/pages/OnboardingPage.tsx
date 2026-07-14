@@ -131,16 +131,16 @@ export default function OnboardingPage() {
   }
 
   const inputClass =
-    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2 text-slate-900 dark:text-white text-sm'
+    'w-full field px-3 py-2 text-slate-900 dark:text-white text-sm'
   const labelClass = 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+      <h1 className="page-title">
         {hasProfile ? 'Editar perfil' : 'Vamos montar seu perfil'}
       </h1>
 
-      <section className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <section className="card p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>Data de nascimento</label>
           <input type="date" className={inputClass} value={form.birthDate}
@@ -199,7 +199,7 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <section className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 space-y-4">
+      <section className="card p-6 space-y-4">
         <div>
           <label className={labelClass}>Grupos musculares priorizados</label>
           <div className="flex flex-wrap gap-2">
@@ -265,7 +265,7 @@ export default function OnboardingPage() {
       </section>
 
       {!hasProfile && (
-        <label className="flex items-start gap-3 bg-white dark:bg-slate-800 rounded-xl shadow p-4 text-sm text-slate-600 dark:text-slate-300">
+        <label className="flex items-start gap-3 card p-4 text-sm text-slate-600 dark:text-slate-300">
           <input type="checkbox" checked={consented} onChange={(e) => setConsented(e.target.checked)} className="mt-1" />
           <span>
             Autorizo o tratamento dos meus dados de saúde para geração de treinos e dietas personalizados,
@@ -278,7 +278,7 @@ export default function OnboardingPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <button type="submit" disabled={saving}
-        className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-6 py-2">
+        className="btn-primary px-6 py-2">
         {saving ? 'Salvando…' : hasProfile ? 'Salvar alterações' : 'Concluir onboarding'}
       </button>
     </form>

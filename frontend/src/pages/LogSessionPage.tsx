@@ -94,13 +94,13 @@ export default function LogSessionPage() {
 
   const exercisesById = new Map(exercises.map((e) => [e.id, e]))
   const inputClass =
-    'rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2 text-slate-900 dark:text-white text-sm'
+    'field px-3 py-2 text-slate-900 dark:text-white text-sm'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Registrar treino</h1>
+      <h1 className="page-title">Registrar treino</h1>
 
-      <section className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 flex flex-wrap gap-4 items-end">
+      <section className="card p-6 flex flex-wrap gap-4 items-end">
         <div>
           <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Data</label>
           <input type="date" className={inputClass} value={date} onChange={(e) => setDate(e.target.value)} />
@@ -112,7 +112,7 @@ export default function LogSessionPage() {
         </div>
       </section>
 
-      <section className="bg-white dark:bg-slate-800 rounded-xl shadow p-6 space-y-4">
+      <section className="card p-6 space-y-4">
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-48">
             <label className="block text-sm text-slate-600 dark:text-slate-300 mb-1">Exercício</label>
@@ -124,7 +124,7 @@ export default function LogSessionPage() {
             </select>
           </div>
           <button type="button" onClick={addSet}
-            className="rounded-lg bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 text-sm">
+            className="btn-secondary px-4 py-2 text-sm">
             + Adicionar série
           </button>
         </div>
@@ -142,7 +142,7 @@ export default function LogSessionPage() {
             </thead>
             <tbody className="text-slate-700 dark:text-slate-200">
               {sets.map((set, index) => (
-                <tr key={index} className="border-t border-slate-100 dark:border-slate-700/50">
+                <tr key={index} className="border-t border-slate-100 dark:border-white/[0.05]">
                   <td className="py-2 pr-2">{exercisesById.get(set.exerciseId)?.name}</td>
                   <td className="py-2">{set.setNumber}ª</td>
                   <td className="py-2">
@@ -167,7 +167,7 @@ export default function LogSessionPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <button type="submit" disabled={saving}
-        className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-6 py-2">
+        className="btn-primary px-6 py-2">
         {saving ? 'Salvando…' : 'Salvar sessão'}
       </button>
     </form>

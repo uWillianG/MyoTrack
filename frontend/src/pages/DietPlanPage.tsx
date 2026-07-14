@@ -79,7 +79,7 @@ export default function DietPlanPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h1 className="page-title">
             {plan ? plan.name : 'Sua dieta'}
             {plan && (
               <span className="ml-3 text-sm font-normal text-slate-500">
@@ -90,7 +90,7 @@ export default function DietPlanPage() {
           {plan && <ReviewBadge reviewStatus={plan.reviewStatus} reviewNote={plan.reviewNote} />}
         </div>
         <button onClick={generate} disabled={generating}
-          className="rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium px-4 py-2 text-sm">
+          className="btn-primary px-4 py-2 text-sm">
           {generating ? 'Gerando…' : plan ? 'Regenerar dieta' : 'Gerar dieta'}
         </button>
       </div>
@@ -98,7 +98,7 @@ export default function DietPlanPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {!plan && !generating && (
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow p-8 text-center text-slate-500 dark:text-slate-400">
+        <div className="card p-8 text-center text-slate-500 dark:text-slate-400">
           <p>Você ainda não tem uma dieta ativa.</p>
           <p className="text-sm mt-1">
             Complete o <Link to="/perfil" className="text-emerald-600 hover:underline">perfil</Link> (com peso
@@ -116,7 +116,7 @@ export default function DietPlanPage() {
               ['Carboidrato', plan.totals.carbsG, plan.targets.targetCarbsG, 'g'],
               ['Gordura', plan.totals.fatG, plan.targets.targetFatG, 'g'],
             ].map(([label, actual, target, unit]) => (
-              <div key={label as string} className="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+              <div key={label as string} className="card p-4">
                 <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">
                   {Math.round(actual as number)}
@@ -127,14 +127,14 @@ export default function DietPlanPage() {
           </section>
 
           {plan.meals.map((meal) => (
-            <section key={meal.id} className="bg-white dark:bg-slate-800 rounded-xl shadow overflow-hidden">
-              <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-700/50 flex justify-between">
+            <section key={meal.id} className="card overflow-hidden">
+              <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg flex justify-between">
                 <span>{meal.name}</span>
                 <span className="text-sm font-normal text-slate-500">
                   {Math.round(meal.items.reduce((sum, i) => sum + i.kcal, 0))} kcal
                 </span>
               </h2>
-              <ul className="divide-y divide-slate-100 dark:divide-slate-700/50 text-sm">
+              <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">
                 {meal.items.map((item) => (
                   <li key={item.id} className="px-5 py-2.5 flex justify-between text-slate-700 dark:text-slate-200">
                     <span>{item.foodName} — {item.quantityG} g</span>

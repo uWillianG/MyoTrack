@@ -53,8 +53,11 @@ services:
     environment:
       DOTNET_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=myotrack;Username=myotrack;Password=${POSTGRES_PASSWORD:-dev-only-password}
+      Llm__Provider: ${LLM_PROVIDER:-}
       Llm__AnthropicApiKey: ${ANTHROPIC_API_KEY:-}
       Llm__Model: ${LLM_MODEL:-claude-opus-4-8}
+      Llm__GeminiApiKey: ${GEMINI_API_KEY:-}
+      Llm__GeminiModel: ${GEMINI_MODEL:-gemini-2.5-flash}
       Storage__Endpoint: http://minio:9000
       Storage__AccessKey: ${MINIO_ROOT_USER:-myotrack}
       Storage__SecretKey: ${MINIO_ROOT_PASSWORD:-dev-only-password}

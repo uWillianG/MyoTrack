@@ -4,6 +4,9 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Smart App Control do Windows bloqueia o apphost .exe não assinado; sem ele,
+         dotnet run executa a DLL pelo dotnet.exe (assinado). Docker não usa o apphost. -->
+    <UseAppHost Condition="'$(OS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'">false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>

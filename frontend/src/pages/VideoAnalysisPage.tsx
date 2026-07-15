@@ -171,8 +171,9 @@ export default function VideoAnalysisPage() {
       </div>
 
       <p className="text-xs text-slate-400">
-        Grave de lado (câmera lateral), com o corpo inteiro no enquadramento e boa iluminação.
-        Vídeos de até 60 segundos e 100 MB — apenas a série, sem preparação.
+        Grave de lado (câmera lateral), com o corpo inteiro no enquadramento e boa iluminação —
+        na vertical ou na horizontal, como preferir. Vídeos de até 60 segundos e 100 MB — apenas
+        a série, sem preparação.
       </p>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

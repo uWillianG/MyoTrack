@@ -57,26 +57,31 @@ def _side_visibility(landmarks, side: int) -> float:
     return sum(landmarks[i].visibility for i in ids) / len(ids)
 
 
-def _extract_signals(landmarks, t: float) -> FrameSignals:
+def _extract_signals(landmarks, t: float, width: int, height: int) -> FrameSignals:
     # Vídeo lateral: usa o lado mais visível para a câmera.
     side = 0 if _side_visibility(landmarks, 0) >= _side_visibility(landmarks, 1) else 1
-    p = lambda i: (landmarks[i].x, landmarks[i].y)
+    # Ângulos em espaço de PIXELS: coordenadas normalizadas (0-1) distorcem com a
+    # proporção da tela — o mesmo movimento daria ângulos diferentes em 16:9 e 9:16.
+    p = lambda i: (landmarks[i].x * width, landmarks[i].y * height)
     shoulder, elbow, wrist = p(SHOULDER[side]), p(ELBOW[side]), p(WRIST[side])
     hip, knee, ankle = p(HIP[side]), p(KNEE[side]), p(ANKLE[side])
 
     dx, dy = shoulder[0] - hip[0], shoulder[1] - hip[1]
     trunk = math.degrees(math.atan2(abs(dx), abs(dy))) if abs(dy) > 1e-6 else 90.0
 
+    # As posições verticais continuam normalizadas — as heurísticas comparam
+    # y com y (ex.: quadril abaixo do joelho), então a escala é indiferente.
+    y = lambda i: landmarks[i].y
     return FrameSignals(
         t=t,
         knee_angle=_angle(hip, knee, ankle),
         hip_angle=_angle(shoulder, hip, knee),
         elbow_angle=_angle(shoulder, elbow, wrist),
         trunk_angle=trunk,
-        hip_y=hip[1],
-        knee_y=knee[1],
-        shoulder_y=shoulder[1],
-        wrist_y=wrist[1],
+        hip_y=y(HIP[side]),
+        knee_y=y(KNEE[side]),
+        shoulder_y=y(SHOULDER[side]),
+        wrist_y=y(WRIST[side]),
     )
 
 
@@ -89,6 +94,10 @@ def process_video(video_path: str, overlay_path: str | None):
     if not capture.isOpened():
         raise BusinessError("Não foi possível ler o vídeo. Use MP4, MOV ou WebM.")
 
+    # Vídeos de celular em retrato vêm com frames deitados + metadado de rotação.
+    # Garante que o OpenCV aplique a rotação (o default variou entre versões).
+    capture.set(cv2.CAP_PROP_ORIENTATION_AUTO, 1)
+
     fps = capture.get(cv2.CAP_PROP_FPS) or 30.0
     total_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     duration = total_frames / fps if fps > 0 else 0.0
@@ -99,13 +108,11 @@ def process_video(video_path: str, overlay_path: str | None):
     step = max(1, round(fps / TARGET_FPS))
     effective_fps = fps / step
 
+    # O writer é criado a partir do PRIMEIRO frame lido: com rotação automática,
+    # CAP_PROP_FRAME_WIDTH/HEIGHT podem reportar as dimensões sem rotação — e o
+    # VideoWriter descarta silenciosamente frames de tamanho diferente.
     writer = None
-    raw_overlay = None
-    if overlay_path is not None:
-        width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        raw_overlay = tempfile.mktemp(suffix=".mp4")
-        writer = cv2.VideoWriter(raw_overlay, cv2.VideoWriter_fourcc(*"mp4v"), effective_fps, (width, height))
+    raw_overlay = tempfile.mktemp(suffix=".mp4") if overlay_path is not None else None
 
     drawing = mp.solutions.drawing_utils
     pose_connections = mp.solutions.pose.POSE_CONNECTIONS
@@ -125,9 +132,16 @@ def process_video(video_path: str, overlay_path: str | None):
             sampled += 1
             t = (index - 1) / fps
 
+            frame_height, frame_width = frame.shape[:2]
+            if raw_overlay is not None and writer is None:
+                writer = cv2.VideoWriter(
+                    raw_overlay, cv2.VideoWriter_fourcc(*"mp4v"), effective_fps,
+                    (frame_width, frame_height))
+
             result = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             if result.pose_landmarks:
-                frames.append(_extract_signals(result.pose_landmarks.landmark, t))
+                frames.append(_extract_signals(
+                    result.pose_landmarks.landmark, t, frame_width, frame_height))
                 if writer is not None:
                     drawing.draw_landmarks(frame, result.pose_landmarks, pose_connections)
             if writer is not None:

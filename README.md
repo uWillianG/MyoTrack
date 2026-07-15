@@ -60,6 +60,12 @@ Os `appsettings.json` da API e do Worker já apontam para `localhost:5433` (Post
 
 Solução de problemas: erro `unable to get image ... open //./pipe/dockerDesktopLinuxEngine` significa que o Docker Desktop não está rodando — abra o aplicativo, aguarde o engine iniciar e rode o comando novamente.
 
+Erro de build `MSB3027/MSB3021 ... O arquivo é bloqueado por: "MyoTrack.Api"`: a API ou o Worker ainda estão rodando e travam as DLLs (comportamento do Windows). Pare-os antes de compilar — Ctrl+C nos terminais ou, para garantir:
+
+```powershell
+Get-Process MyoTrack.Api, MyoTrack.Worker -ErrorAction SilentlyContinue | Stop-Process -Force
+```
+
 ## Deploy (VPS)
 
 Mesmo fluxo do "Tudo via Docker" acima, mas preencha também as senhas e a chave JWT no `.env`. Para TLS automático, troque `:80` pelo domínio no `deploy/Caddyfile`.

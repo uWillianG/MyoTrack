@@ -39,7 +39,9 @@ public class MealAnalysesController(
             return BadRequest(new { error = "Formato não suportado. Use JPEG, PNG ou WebP." });
 
         var entitlement = await entitlements.GetAsync(CurrentUserId);
-        var since = DateTimeOffset.UtcNow.Date;
+        // Meia-noite UTC como DateTimeOffset explícito — a conversão implícita de
+        // DateTime usaria o fuso local, que o Npgsql rejeita em timestamptz.
+        var since = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero);
         var usedToday = await db.AnalysisJobs.CountAsync(j =>
             j.UserId == CurrentUserId &&
             j.Type == AnalysisJobType.MealPhoto &&

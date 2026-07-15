@@ -100,7 +100,9 @@ export default function OnboardingPage() {
       })
       if (!profileResponse.ok) {
         const data = await profileResponse.json().catch(() => null)
-        setError(data?.error ?? 'Falha ao salvar o perfil.')
+        // ProblemDetails do ASP.NET traz { errors: { Campo: [mensagens] } }.
+        const validation = data?.errors && Object.values(data.errors as Record<string, string[]>).flat().join(' ')
+        setError(data?.error ?? validation ?? `Falha ao salvar o perfil (HTTP ${profileResponse.status}).`)
         return
       }
 
@@ -125,6 +127,10 @@ export default function OnboardingPage() {
       }
 
       navigate('/treino')
+    } catch (e) {
+      setError(e instanceof Error
+        ? `Não foi possível falar com o servidor (${e.message}). A API está rodando?`
+        : 'Erro inesperado ao salvar o perfil.')
     } finally {
       setSaving(false)
     }

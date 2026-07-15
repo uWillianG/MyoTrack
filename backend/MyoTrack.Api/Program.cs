@@ -11,6 +11,9 @@ using MyoTrack.Infrastructure.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Segredos de desenvolvimento local (gitignored) — ex.: chaves Stripe para dotnet run.
+builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 

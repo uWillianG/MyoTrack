@@ -6,6 +6,9 @@ using MyoTrack.Worker;
 
 var builder = Host.CreateApplicationBuilder(args);
 
+// Segredos de desenvolvimento local (gitignored) — ex.: chaves de LLM para dotnet run.
+builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 

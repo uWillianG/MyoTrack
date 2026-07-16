@@ -44,7 +44,8 @@ public enum MuscleGroup
     Abs = 11,
     LowerBack = 12,
     FullBody = 13,
-    Cardio = 14
+    Cardio = 14,
+    Traps = 15
 }
 
 public enum Equipment

@@ -59,6 +59,7 @@ const exerciseLabels: Record<string, string> = {
   lateral_raise: 'Elevação lateral',
   front_raise: 'Elevação frontal',
   upright_row: 'Remada alta',
+  shrug: 'Encolhimento (trapézio)',
 }
 
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024

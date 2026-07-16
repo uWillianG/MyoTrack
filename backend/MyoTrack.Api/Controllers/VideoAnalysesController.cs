@@ -35,7 +35,7 @@ public class VideoAnalysesController(
         "bench_press", "push_up", "dips", "overhead_press",
         "barbell_row", "lat_pulldown", "seated_cable_row", "dumbbell_row", "pull_up",
         "biceps_curl", "hammer_curl", "preacher_curl", "triceps_pushdown",
-        "lateral_raise", "front_raise", "upright_row",
+        "lateral_raise", "front_raise", "upright_row", "shrug",
     ];
 
     /// <summary>Passo 1: URL pré-assinada para o browser subir o vídeo direto no MinIO.</summary>

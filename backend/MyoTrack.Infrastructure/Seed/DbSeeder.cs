@@ -16,15 +16,25 @@ public static class DbSeeder
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
         }
 
-        // Idempotente por nome: itens novos do catálogo entram também em bancos já populados.
-        var existingNames = (await db.Exercises.Select(e => e.Name).ToListAsync())
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var missingExercises = ExerciseSeed.Items.Where(e => !existingNames.Contains(e.Name)).ToList();
-        if (missingExercises.Count > 0)
+        // Idempotente por nome: itens novos do catálogo entram também em bancos já
+        // populados, e a classificação muscular dos existentes é sincronizada com o
+        // seed (fonte da verdade do catálogo — ex.: encolhimento migrou Back → Traps).
+        var existingByName = (await db.Exercises.ToListAsync())
+            .ToDictionary(e => e.Name, StringComparer.OrdinalIgnoreCase);
+        foreach (var seed in ExerciseSeed.Items)
         {
-            db.Exercises.AddRange(missingExercises);
-            await db.SaveChangesAsync();
+            if (!existingByName.TryGetValue(seed.Name, out var existing))
+            {
+                db.Exercises.Add(seed);
+            }
+            else if (existing.PrimaryMuscleGroup != seed.PrimaryMuscleGroup
+                || !existing.SecondaryMuscleGroups.SequenceEqual(seed.SecondaryMuscleGroups))
+            {
+                existing.PrimaryMuscleGroup = seed.PrimaryMuscleGroup;
+                existing.SecondaryMuscleGroups = seed.SecondaryMuscleGroups;
+            }
         }
+        await db.SaveChangesAsync();
 
         if (!await db.FoodItems.AnyAsync())
         {

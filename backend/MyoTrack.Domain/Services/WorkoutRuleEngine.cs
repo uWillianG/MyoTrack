@@ -26,11 +26,11 @@ public static class WorkoutRuleEngine
     private static (string Split, DayTemplate[] Days) SplitFor(int daysPerWeek) => daysPerWeek switch
     {
         <= 2 => ("FullBody", [
-            new("A — Corpo inteiro", [MuscleGroup.Quadriceps, MuscleGroup.Chest, MuscleGroup.Back, MuscleGroup.Shoulders, MuscleGroup.Abs]),
+            new("A — Corpo inteiro", [MuscleGroup.Quadriceps, MuscleGroup.Chest, MuscleGroup.Back, MuscleGroup.Shoulders, MuscleGroup.Traps, MuscleGroup.Abs]),
             new("B — Corpo inteiro", [MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Back, MuscleGroup.Chest, MuscleGroup.Biceps, MuscleGroup.Triceps, MuscleGroup.Forearms]),
         ]),
         3 => ("ABC", [
-            new("A — Peito/Ombros/Tríceps", [MuscleGroup.Chest, MuscleGroup.Shoulders, MuscleGroup.Triceps]),
+            new("A — Peito/Ombros/Trapézio/Tríceps", [MuscleGroup.Chest, MuscleGroup.Shoulders, MuscleGroup.Traps, MuscleGroup.Triceps]),
             new("B — Costas/Bíceps/Antebraços", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Forearms, MuscleGroup.Abs]),
             new("C — Pernas", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Calves]),
         ]),
@@ -38,11 +38,11 @@ public static class WorkoutRuleEngine
             new("A — Peito/Tríceps", [MuscleGroup.Chest, MuscleGroup.Triceps]),
             new("B — Costas/Bíceps/Antebraços", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Forearms]),
             new("C — Pernas", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Calves]),
-            new("D — Ombros/Abdômen", [MuscleGroup.Shoulders, MuscleGroup.Abs]),
+            new("D — Ombros/Trapézio/Abdômen", [MuscleGroup.Shoulders, MuscleGroup.Traps, MuscleGroup.Abs]),
         ]),
         _ => ("PPL", [
             new("A — Push (Peito/Ombros/Tríceps)", [MuscleGroup.Chest, MuscleGroup.Shoulders, MuscleGroup.Triceps]),
-            new("B — Pull (Costas/Bíceps)", [MuscleGroup.Back, MuscleGroup.Biceps]),
+            new("B — Pull (Costas/Trapézio/Bíceps)", [MuscleGroup.Back, MuscleGroup.Traps, MuscleGroup.Biceps]),
             new("C — Legs (Pernas)", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Calves]),
             new("D — Push (variação)", [MuscleGroup.Chest, MuscleGroup.Shoulders, MuscleGroup.Triceps]),
             new("E — Pull + Abdômen", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Forearms, MuscleGroup.Abs]),

@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 
 const muscleGroups = [
-  ['Chest', 'Peito'], ['Back', 'Costas'], ['Shoulders', 'Ombros'], ['Biceps', 'Bíceps'],
-  ['Triceps', 'Tríceps'], ['Forearms', 'Antebraços'], ['Quadriceps', 'Quadríceps'],
+  ['Chest', 'Peito'], ['Back', 'Costas'], ['Shoulders', 'Ombros'], ['Traps', 'Trapézio'],
+  ['Biceps', 'Bíceps'], ['Triceps', 'Tríceps'], ['Forearms', 'Antebraços'], ['Quadriceps', 'Quadríceps'],
   ['Hamstrings', 'Posteriores'], ['Glutes', 'Glúteos'], ['Calves', 'Panturrilhas'], ['Abs', 'Abdômen'],
 ] as const
 

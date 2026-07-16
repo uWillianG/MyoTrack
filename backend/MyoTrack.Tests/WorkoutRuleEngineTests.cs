@@ -113,15 +113,17 @@ public class WorkoutRuleEngineTests
         Assert.True(ChestCount(with) > ChestCount(without));
     }
 
-    [Fact]
-    public void ForearmExercises_AppearOnPullDays()
+    [Theory]
+    [InlineData(MuscleGroup.Forearms)]
+    [InlineData(MuscleGroup.Traps)]
+    public void SmallGroups_AppearInAllSplits(MuscleGroup group)
     {
         var catalog = Catalog().ToDictionary(e => e.Id);
         foreach (var days in new[] { 2, 3, 4, 5 })
         {
             var plan = WorkoutRuleEngine.Generate(Input(days: days), catalog.Values.ToList());
             Assert.Contains(plan.Days.SelectMany(d => d.Exercises),
-                e => catalog[e.ExerciseId].PrimaryMuscleGroup == MuscleGroup.Forearms);
+                e => catalog[e.ExerciseId].PrimaryMuscleGroup == group);
         }
     }
 

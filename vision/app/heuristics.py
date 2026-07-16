@@ -17,7 +17,8 @@ from .analysis import FrameSignals
 
 # Faixa mínima de variação do sinal para considerarmos que houve movimento.
 MIN_SIGNAL_RANGE_DEG = 25.0
-MIN_WRIST_TRAVEL = 0.10  # coordenadas normalizadas (fração da altura da imagem)
+MIN_WRIST_TRAVEL = 0.10   # coordenadas normalizadas (fração da altura da imagem)
+MIN_SHRUG_TRAVEL = 0.025  # encolhimento tem amplitude pequena por natureza
 
 
 @dataclass
@@ -175,6 +176,11 @@ def _elbow(f: FrameSignals) -> float:
 def _wrist_height(f: FrameSignals) -> float:
     # Altura do punho acima do ombro (y de imagem cresce para baixo).
     return f.shoulder_y - f.wrist_y
+
+
+def _shoulder_elevation(f: FrameSignals) -> float:
+    # Distância ombro-quadril: relativa ao corpo, cancela balanço da câmera/tronco.
+    return f.hip_y - f.shoulder_y
 
 
 def _trunk_stable(rep: Rep, max_range: float) -> bool:
@@ -451,6 +457,19 @@ SPECS: dict[str, ExerciseSpec] = {
                   "Estenda os braços por completo na descida (dead hang).",
                   "Extensão completa dos braços na descida.",
                   lambda rep: max(f.elbow_angle for f in rep.segment or rep.window) >= 160),
+        ]),
+    "shrug": ExerciseSpec(
+        label="encolhimento", signal=_shoulder_elevation, signal_name="shoulder_elevation",
+        extremum="top", min_range=MIN_SHRUG_TRAVEL,
+        checks=[
+            Check("elbow_bend",
+                  "Cotovelos dobrando para ajudar — mantenha os braços estendidos e suba apenas os ombros.",
+                  "Braços estendidos — o movimento ficou por conta do trapézio.",
+                  lambda rep: min(f.elbow_angle for f in rep.segment or rep.window) >= 150),
+            Check("torso_swing",
+                  "Impulso com o corpo — mantenha o tronco parado e encolha os ombros com controle.",
+                  "Tronco estável durante o encolhimento.",
+                  lambda rep: _trunk_stable(rep, 10)),
         ]),
     "front_raise": ExerciseSpec(
         # Elevação no plano sagital — a mais visível de todas na câmera lateral.

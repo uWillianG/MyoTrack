@@ -47,7 +47,13 @@ public static class ExerciseSeed
         Ex("Remada na máquina", MuscleGroup.Back, Equipment.Machine, true, [MuscleGroup.Biceps]),
         Ex("Puxada na polia com pegada fechada (triângulo)", MuscleGroup.Back, Equipment.Cable, true, [MuscleGroup.Biceps], ["shoulder"]),
         Ex("Pullover na polia com braços estendidos", MuscleGroup.Back, Equipment.Cable, false, null, ["shoulder"]),
-        Ex("Encolhimento com halteres (trapézio)", MuscleGroup.Back, Equipment.Dumbbell, false, null, ["neck"]),
+
+        // Trapézio
+        Ex("Encolhimento com halteres (trapézio)", MuscleGroup.Traps, Equipment.Dumbbell, false, null, ["neck"]),
+        Ex("Encolhimento com barra", MuscleGroup.Traps, Equipment.Barbell, false, null, ["neck"]),
+        Ex("Encolhimento na barra guiada (Smith)", MuscleGroup.Traps, Equipment.Machine, false, null, ["neck"]),
+        Ex("Encolhimento na polia baixa", MuscleGroup.Traps, Equipment.Cable, false, null, ["neck"]),
+        Ex("Remada alta na polia", MuscleGroup.Traps, Equipment.Cable, true, [MuscleGroup.Shoulders, MuscleGroup.Biceps], ["shoulder", "wrist"]),
 
         // Ombros
         Ex("Desenvolvimento militar com barra", MuscleGroup.Shoulders, Equipment.Barbell, true, [MuscleGroup.Triceps], ["shoulder", "lower-back"]),
@@ -58,7 +64,7 @@ public static class ExerciseSeed
         Ex("Desenvolvimento na máquina", MuscleGroup.Shoulders, Equipment.Machine, true, [MuscleGroup.Triceps], ["shoulder"]),
         Ex("Desenvolvimento Arnold com halteres", MuscleGroup.Shoulders, Equipment.Dumbbell, true, [MuscleGroup.Triceps], ["shoulder"]),
         Ex("Elevação lateral na polia", MuscleGroup.Shoulders, Equipment.Cable, false, null, ["shoulder"]),
-        Ex("Remada alta com barra", MuscleGroup.Shoulders, Equipment.Barbell, true, [MuscleGroup.Biceps], ["shoulder", "wrist"]),
+        Ex("Remada alta com barra", MuscleGroup.Shoulders, Equipment.Barbell, true, [MuscleGroup.Traps, MuscleGroup.Biceps], ["shoulder", "wrist"]),
         Ex("Face pull na polia", MuscleGroup.Shoulders, Equipment.Cable, false, [MuscleGroup.Back]),
 
         // Bíceps

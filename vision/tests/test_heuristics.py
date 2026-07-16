@@ -93,6 +93,12 @@ def make_lateral_raise(reps, top_wrist_above_shoulder, trunk_swing):
         wrist_y=0.55 - (0.25 + top_wrist_above_shoulder) * d))
 
 
+def make_shrug(reps, elbow, trunk_swing):
+    # Ombro sobe ~0.04 normalizado (amplitude típica de encolhimento).
+    return series(reps, lambda t, d: neutral(
+        t, elbow=elbow, trunk=5 + trunk_swing * d, shoulder_y=0.25 - 0.04 * d))
+
+
 def run(exercise, frames):
     return heuristics.HEURISTICS[exercise](frames)
 
@@ -290,8 +296,21 @@ r = run("upright_row", make_lateral_raise(4, top_wrist_above_shoulder=-0.13, tru
 check("remada alta curta: detecta short_range", "short_range" in codes(r), f"(issues={codes(r)})")
 check("remada alta com balanco: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
 
+# --- Encolhimento (trapézio) ------------------------------------------------
+r = run("shrug", make_shrug(4, elbow=175, trunk_swing=0))
+check("encolhimento bom: 4 reps", r.rep_count == 4, f"(reps={r.rep_count})")
+check("encolhimento bom: sem issues e 2 pontos corretos",
+      not r.issues and len(r.correct_points) == 2, f"(ok={ok_codes(r)})")
+
+r = run("shrug", make_shrug(4, elbow=120, trunk_swing=15))
+check("encolhimento ruim: detecta elbow_bend", "elbow_bend" in codes(r), f"(issues={codes(r)})")
+check("encolhimento ruim: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
+
+r = run("shrug", [neutral(i / FPS) for i in range(60)])
+check("encolhimento parado: nao avaliavel", r.not_evaluable_reason is not None)
+
 # --- Catálogo completo -----------------------------------------------------
-check("catalogo: 21 exercicios", len(heuristics.HEURISTICS) == 21, f"(n={len(heuristics.HEURISTICS)})")
+check("catalogo: 22 exercicios", len(heuristics.HEURISTICS) == 22, f"(n={len(heuristics.HEURISTICS)})")
 
 print()
 print("TODOS OS TESTES PASSARAM" if ok else "HA FALHAS")

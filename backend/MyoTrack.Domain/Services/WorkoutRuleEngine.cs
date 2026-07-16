@@ -27,23 +27,23 @@ public static class WorkoutRuleEngine
     {
         <= 2 => ("FullBody", [
             new("A — Corpo inteiro", [MuscleGroup.Quadriceps, MuscleGroup.Calves, MuscleGroup.Chest, MuscleGroup.Back, MuscleGroup.Shoulders, MuscleGroup.Traps, MuscleGroup.Abs]),
-            new("B — Corpo inteiro", [MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Back, MuscleGroup.Chest, MuscleGroup.Biceps, MuscleGroup.Triceps, MuscleGroup.Forearms]),
+            new("B — Corpo inteiro", [MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.LowerBack, MuscleGroup.Back, MuscleGroup.Chest, MuscleGroup.Biceps, MuscleGroup.Triceps, MuscleGroup.Forearms]),
         ]),
         3 => ("ABC", [
             new("A — Peito/Ombros/Trapézio/Tríceps", [MuscleGroup.Chest, MuscleGroup.Shoulders, MuscleGroup.Traps, MuscleGroup.Triceps]),
             new("B — Costas/Bíceps/Antebraços", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Forearms, MuscleGroup.Abs]),
-            new("C — Pernas", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Calves]),
+            new("C — Pernas", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.LowerBack, MuscleGroup.Calves]),
         ]),
         4 => ("ABCD", [
             new("A — Peito/Tríceps", [MuscleGroup.Chest, MuscleGroup.Triceps]),
             new("B — Costas/Bíceps/Antebraços", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Forearms]),
             new("C — Pernas", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Calves]),
-            new("D — Ombros/Trapézio/Abdômen", [MuscleGroup.Shoulders, MuscleGroup.Traps, MuscleGroup.Abs]),
+            new("D — Ombros/Trapézio/Core", [MuscleGroup.Shoulders, MuscleGroup.Traps, MuscleGroup.Abs, MuscleGroup.LowerBack]),
         ]),
         _ => ("PPL", [
             new("A — Push (Peito/Ombros/Tríceps)", [MuscleGroup.Chest, MuscleGroup.Shoulders, MuscleGroup.Triceps]),
             new("B — Pull (Costas/Trapézio/Bíceps)", [MuscleGroup.Back, MuscleGroup.Traps, MuscleGroup.Biceps]),
-            new("C — Legs (Pernas)", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Calves]),
+            new("C — Legs (Pernas)", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.LowerBack, MuscleGroup.Calves]),
             new("D — Push (variação)", [MuscleGroup.Chest, MuscleGroup.Shoulders, MuscleGroup.Triceps]),
             new("E — Pull + Abdômen", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Forearms, MuscleGroup.Abs]),
         ]),
@@ -64,8 +64,10 @@ public static class WorkoutRuleEngine
         _ => 4,
     };
 
-    private static int ExercisesPerGroup(ExperienceLevel level, bool isPriority) =>
-        (level == ExperienceLevel.Beginner ? 1 : 2) + (isPriority ? 1 : 0);
+    // Dias full-body tocam muitos grupos de uma vez: 1 exercício por grupo,
+    // senão a sessão de intermediário/avançado passa de 14 exercícios.
+    private static int ExercisesPerGroup(ExperienceLevel level, bool isPriority, bool fullBodyDay) =>
+        (fullBodyDay || level == ExperienceLevel.Beginner ? 1 : 2) + (isPriority ? 1 : 0);
 
     public static GeneratedWorkout Generate(WorkoutGenerationInput input, IReadOnlyList<Exercise> catalog)
     {
@@ -94,7 +96,7 @@ public static class WorkoutRuleEngine
                     .Where(e => e.PrimaryMuscleGroup == group && !used.Contains(e.Id))
                     .OrderByDescending(e => e.IsCompound)
                     .ThenBy(e => e.Id)
-                    .Take(ExercisesPerGroup(input.Level, isPriority))
+                    .Take(ExercisesPerGroup(input.Level, isPriority, split == "FullBody"))
                     .ToList();
 
                 foreach (var exercise in candidates)

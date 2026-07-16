@@ -117,6 +117,7 @@ public class WorkoutRuleEngineTests
     [InlineData(MuscleGroup.Forearms)]
     [InlineData(MuscleGroup.Traps)]
     [InlineData(MuscleGroup.Calves)]
+    [InlineData(MuscleGroup.LowerBack)]
     public void SmallGroups_AppearInAllSplits(MuscleGroup group)
     {
         var catalog = Catalog().ToDictionary(e => e.Id);
@@ -125,6 +126,22 @@ public class WorkoutRuleEngineTests
             var plan = WorkoutRuleEngine.Generate(Input(days: days), catalog.Values.ToList());
             Assert.Contains(plan.Days.SelectMany(d => d.Exercises),
                 e => catalog[e.ExerciseId].PrimaryMuscleGroup == group);
+        }
+    }
+
+    [Fact]
+    public void FullBodyDays_CapOneExercisePerGroup()
+    {
+        var catalog = Catalog().ToDictionary(e => e.Id);
+        var plan = WorkoutRuleEngine.Generate(
+            Input(days: 2, level: ExperienceLevel.Advanced), catalog.Values.ToList());
+
+        foreach (var day in plan.Days)
+        {
+            var perGroup = day.Exercises
+                .GroupBy(e => catalog[e.ExerciseId].PrimaryMuscleGroup)
+                .Select(g => g.Count());
+            Assert.All(perGroup, count => Assert.Equal(1, count));
         }
     }
 

@@ -6,6 +6,7 @@ const muscleGroups = [
   ['Chest', 'Peito'], ['Back', 'Costas'], ['Shoulders', 'Ombros'], ['Traps', 'Trapézio'],
   ['Biceps', 'Bíceps'], ['Triceps', 'Tríceps'], ['Forearms', 'Antebraços'], ['Quadriceps', 'Quadríceps'],
   ['Hamstrings', 'Posteriores'], ['Glutes', 'Glúteos'], ['Calves', 'Panturrilhas'], ['Abs', 'Abdômen'],
+  ['LowerBack', 'Lombar'],
 ] as const
 
 const equipmentOptions = [

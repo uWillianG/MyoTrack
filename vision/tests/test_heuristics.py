@@ -316,6 +316,17 @@ check("encolhimento ruim: detecta torso_swing", "torso_swing" in codes(r), f"(is
 r = run("shrug", [neutral(i / FPS) for i in range(60)])
 check("encolhimento parado: nao avaliavel", r.not_evaluable_reason is not None)
 
+# --- Extensão lombar (banco romano) -----------------------------------------
+r = run("back_extension", make_hip_thrust(4, top_hip=175, bottom_hip=95))
+check("extensao lombar boa: sem issues e 2 pontos corretos",
+      not r.issues and len(r.correct_points) == 2, f"(ok={ok_codes(r)})")
+
+r = run("back_extension", make_hip_thrust(4, top_hip=150, bottom_hip=95))
+check("extensao lombar sem subir: detecta incomplete_extension", "incomplete_extension" in codes(r), f"(issues={codes(r)})")
+
+r = run("back_extension", make_hip_thrust(4, top_hip=175, bottom_hip=140))
+check("extensao lombar curta: detecta short_range", "short_range" in codes(r), f"(issues={codes(r)})")
+
 # --- Panturrilha em pé ------------------------------------------------------
 r = run("calf_raise", make_calf_raise(4, knee_at_top=175, trunk_swing=0))
 check("panturrilha boa: 4 reps", r.rep_count == 4, f"(reps={r.rep_count})")
@@ -330,7 +341,7 @@ r = run("calf_raise", [neutral(i / FPS) for i in range(60)])
 check("panturrilha parada: nao avaliavel", r.not_evaluable_reason is not None)
 
 # --- Catálogo completo -----------------------------------------------------
-check("catalogo: 23 exercicios", len(heuristics.HEURISTICS) == 23, f"(n={len(heuristics.HEURISTICS)})")
+check("catalogo: 24 exercicios", len(heuristics.HEURISTICS) == 24, f"(n={len(heuristics.HEURISTICS)})")
 
 print()
 print("TODOS OS TESTES PASSARAM" if ok else "HA FALHAS")

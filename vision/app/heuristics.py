@@ -269,6 +269,21 @@ SPECS: dict[str, ExerciseSpec] = {
                   "Boa amplitude de movimento entre as repetições.",
                   lambda rep: min(f.hip_angle for f in rep.segment or rep.window) <= 120),
         ]),
+    "back_extension": ExerciseSpec(
+        # Banco romano: o ângulo do quadril é relativo às articulações,
+        # então funciona com o corpo inclinado a 45°.
+        label="extensão lombar", signal=_hip, signal_name="hip_angle_deg",
+        extremum="bottom", min_range=MIN_SIGNAL_RANGE_DEG,
+        checks=[
+            Check("incomplete_extension",
+                  "Suba até alinhar o tronco com as pernas — sem encurtar a subida.",
+                  "Extensão completa no topo, tronco alinhado com as pernas.",
+                  lambda rep: max(f.hip_angle for f in rep.segment or rep.window) >= 160),
+            Check("short_range",
+                  "Amplitude curta — desça o tronco com controle até perto da vertical.",
+                  "Boa amplitude na descida.",
+                  lambda rep: min(f.hip_angle for f in rep.window) <= 130),
+        ]),
     "bench_press": ExerciseSpec(
         label="supino", signal=_elbow, signal_name="elbow_angle_deg",
         extremum="bottom", min_range=MIN_SIGNAL_RANGE_DEG,

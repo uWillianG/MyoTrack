@@ -101,16 +101,28 @@ public static class ExerciseSeed
         Ex("Afundo com halteres", MuscleGroup.Quadriceps, Equipment.Dumbbell, true, [MuscleGroup.Glutes], ["knee"]),
         Ex("Agachamento búlgaro", MuscleGroup.Quadriceps, Equipment.Dumbbell, true, [MuscleGroup.Glutes], ["knee"]),
         Ex("Agachamento no hack", MuscleGroup.Quadriceps, Equipment.Machine, true, [MuscleGroup.Glutes], ["knee"]),
+        Ex("Agachamento goblet com halter", MuscleGroup.Quadriceps, Equipment.Dumbbell, true, [MuscleGroup.Glutes], ["knee"]),
+        Ex("Avanço caminhando com halteres", MuscleGroup.Quadriceps, Equipment.Dumbbell, true, [MuscleGroup.Glutes, MuscleGroup.Hamstrings], ["knee"]),
 
         // Posteriores
         Ex("Stiff com barra", MuscleGroup.Hamstrings, Equipment.Barbell, true, [MuscleGroup.Glutes, MuscleGroup.LowerBack], ["lower-back"]),
         Ex("Mesa flexora", MuscleGroup.Hamstrings, Equipment.Machine, false, null, ["knee"]),
         Ex("Cadeira flexora", MuscleGroup.Hamstrings, Equipment.Machine, false, null, ["knee"]),
+        Ex("Terra romeno com halteres", MuscleGroup.Hamstrings, Equipment.Dumbbell, true, [MuscleGroup.Glutes, MuscleGroup.LowerBack], ["lower-back"]),
+        Ex("Bom dia com barra", MuscleGroup.Hamstrings, Equipment.Barbell, true, [MuscleGroup.LowerBack, MuscleGroup.Glutes], ["lower-back"]),
+        Ex("Flexora em pé unilateral", MuscleGroup.Hamstrings, Equipment.Machine, false, null, ["knee"]),
 
         // Glúteos
         Ex("Elevação pélvica (hip thrust)", MuscleGroup.Glutes, Equipment.Barbell, true, [MuscleGroup.Hamstrings], ["hip"]),
         Ex("Cadeira abdutora", MuscleGroup.Glutes, Equipment.Machine, false),
         Ex("Coice na polia (glúteo)", MuscleGroup.Glutes, Equipment.Cable, false),
+        Ex("Ponte de glúteos no solo", MuscleGroup.Glutes, Equipment.Bodyweight, false, [MuscleGroup.Hamstrings]),
+        Ex("Agachamento sumô com halter", MuscleGroup.Glutes, Equipment.Dumbbell, true, [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings], ["knee"]),
+        Ex("Abdução de quadril com faixa elástica", MuscleGroup.Glutes, Equipment.ResistanceBand, false),
+
+        // Lombar
+        Ex("Extensão lombar no banco romano (hiperextensão)", MuscleGroup.LowerBack, Equipment.Machine, false, [MuscleGroup.Glutes, MuscleGroup.Hamstrings], ["lower-back"]),
+        Ex("Superman no solo", MuscleGroup.LowerBack, Equipment.Bodyweight, false, [MuscleGroup.Glutes]),
 
         // Panturrilhas
         Ex("Panturrilha em pé na máquina", MuscleGroup.Calves, Equipment.Machine, false),
@@ -125,11 +137,17 @@ public static class ExerciseSeed
         Ex("Abdominal supra no solo", MuscleGroup.Abs, Equipment.Bodyweight, false, null, ["neck", "lower-back"]),
         Ex("Abdominal na polia alta (crunch)", MuscleGroup.Abs, Equipment.Cable, false),
         Ex("Elevação de pernas suspenso", MuscleGroup.Abs, Equipment.Bodyweight, false, null, ["lower-back", "shoulder"]),
+        Ex("Prancha lateral (oblíquos)", MuscleGroup.Abs, Equipment.Bodyweight, false, null, ["shoulder"]),
+        Ex("Rotação de tronco sentado (russian twist)", MuscleGroup.Abs, Equipment.Bodyweight, false, null, ["lower-back"]),
+        Ex("Elevação de pernas deitado", MuscleGroup.Abs, Equipment.Bodyweight, false, null, ["lower-back"]),
+        Ex("Abdominal na máquina", MuscleGroup.Abs, Equipment.Machine, false),
 
         // Cardio / condicionamento
         Ex("Esteira — corrida contínua", MuscleGroup.Cardio, Equipment.Machine, false, null, ["knee", "hip"]),
         Ex("Bicicleta ergométrica", MuscleGroup.Cardio, Equipment.Machine, false),
         Ex("Remo ergômetro", MuscleGroup.Cardio, Equipment.Machine, true, [MuscleGroup.Back], ["lower-back"]),
+        Ex("Elíptico (transport)", MuscleGroup.Cardio, Equipment.Machine, false),
+        Ex("Pular corda", MuscleGroup.Cardio, Equipment.Bodyweight, false, null, ["knee"]),
         Ex("Burpee", MuscleGroup.FullBody, Equipment.Bodyweight, true, null, ["knee", "wrist", "lower-back"]),
         Ex("Kettlebell swing", MuscleGroup.FullBody, Equipment.Kettlebell, true, [MuscleGroup.Glutes, MuscleGroup.LowerBack], ["lower-back"]),
     ];

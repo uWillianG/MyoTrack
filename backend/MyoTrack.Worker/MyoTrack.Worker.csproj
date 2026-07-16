@@ -5,9 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-MyoTrack.Worker-638c073e-928a-4a4a-bdb6-b8f04735ba9e</UserSecretsId>
-    <!-- Smart App Control do Windows bloqueia o apphost .exe não assinado; sem ele,
-         dotnet run executa a DLL pelo dotnet.exe (assinado). Docker não usa o apphost. -->
-    <UseAppHost Condition="'$(OS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'">false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>

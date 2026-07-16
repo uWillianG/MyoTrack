@@ -67,6 +67,7 @@ def analyze(request: AnalyzeRequest):
             "score": compute_score(result),
             "rep_count": result.rep_count,
             "issues": [vars(issue) for issue in result.issues],
+            "correct_points": [vars(point) for point in result.correct_points],
             "metrics": {
                 **result.metrics,
                 "duration_sec": round(duration, 1),

@@ -7,6 +7,11 @@ interface VideoIssue {
   timestamps_sec: number[]
 }
 
+interface CorrectPoint {
+  code: string
+  message: string
+}
+
 interface VideoAnalysis {
   id: string
   createdAt: string
@@ -17,6 +22,8 @@ interface VideoAnalysis {
   hasOverlay: boolean
   result: {
     issues: VideoIssue[]
+    // Análises antigas (antes do feedback positivo) não têm o campo.
+    correctPoints?: CorrectPoint[]
     metrics: Record<string, number | null>
     notEvaluableReason: string | null
   }
@@ -32,8 +39,17 @@ interface VideoSummary {
 
 const exerciseLabels: Record<string, string> = {
   squat: 'Agachamento',
+  lunge: 'Afundo (passada)',
   deadlift: 'Levantamento terra',
+  romanian_deadlift: 'Terra romeno (stiff)',
+  hip_thrust: 'Elevação de quadril (hip thrust)',
+  bench_press: 'Supino',
+  push_up: 'Flexão de braço',
   overhead_press: 'Desenvolvimento (militar)',
+  barbell_row: 'Remada curvada',
+  biceps_curl: 'Rosca bíceps',
+  pull_up: 'Barra fixa',
+  lateral_raise: 'Elevação lateral',
 }
 
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024
@@ -220,34 +236,57 @@ export default function VideoAnalysisPage() {
               <p className="font-semibold">Não foi possível avaliar com confiança</p>
               <p>{analysis.result.notEvaluableReason}</p>
             </div>
-          ) : analysis.result.issues.length === 0 ? (
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 text-sm text-emerald-800 dark:text-emerald-200">
-              Nenhum erro detectado pelas heurísticas. Boa execução!
-            </div>
           ) : (
-            <section className="card overflow-hidden">
-              <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg">
-                Pontos de atenção
-              </h2>
-              <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">
-                {analysis.result.issues.map((issue) => (
-                  <li key={issue.code} className="px-5 py-3 text-slate-700 dark:text-slate-200">
-                    <p>{issue.message}</p>
-                    <p className="mt-1 flex flex-wrap gap-1.5">
-                      {issue.timestamps_sec.map((t, i) => (
-                        <button
-                          key={i}
-                          onClick={() => seekTo(t)}
-                          className="rounded-lg bg-slate-100 dark:bg-white/[0.06] hover:bg-emerald-100 dark:hover:bg-emerald-900/40 px-2 py-0.5 text-xs text-slate-600 dark:text-slate-300"
-                        >
-                          ▶ {formatTime(t)}
-                        </button>
-                      ))}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <>
+              {(analysis.result.correctPoints ?? []).length > 0 && (
+                <section className="card overflow-hidden">
+                  <h2 className="px-5 py-3 font-semibold text-emerald-700 dark:text-emerald-300 card-header-bg">
+                    Pontos corretos
+                  </h2>
+                  <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">
+                    {(analysis.result.correctPoints ?? []).map((point) => (
+                      <li key={point.code} className="px-5 py-3 flex gap-2 text-slate-700 dark:text-slate-200">
+                        <span className="text-emerald-500 shrink-0">✓</span>
+                        <span>{point.message}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {analysis.result.issues.length === 0 ? (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 text-sm text-emerald-800 dark:text-emerald-200">
+                  Nenhum erro detectado pelas heurísticas. Boa execução!
+                </div>
+              ) : (
+                <section className="card overflow-hidden">
+                  <h2 className="px-5 py-3 font-semibold text-amber-700 dark:text-amber-300 card-header-bg">
+                    Pontos de atenção
+                  </h2>
+                  <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">
+                    {analysis.result.issues.map((issue) => (
+                      <li key={issue.code} className="px-5 py-3 text-slate-700 dark:text-slate-200">
+                        <p className="flex gap-2">
+                          <span className="text-amber-500 shrink-0">⚠</span>
+                          <span>{issue.message}</span>
+                        </p>
+                        <p className="mt-1 flex flex-wrap gap-1.5 pl-6">
+                          {issue.timestamps_sec.map((t, i) => (
+                            <button
+                              key={i}
+                              onClick={() => seekTo(t)}
+                              className="rounded-lg bg-slate-100 dark:bg-white/[0.06] hover:bg-emerald-100 dark:hover:bg-emerald-900/40 px-2 py-0.5 text-xs text-slate-600 dark:text-slate-300"
+                            >
+                              ▶ {formatTime(t)}
+                            </button>
+                          ))}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </>
           )}
 
           <p className="text-xs text-slate-400">
@@ -263,7 +302,8 @@ export default function VideoAnalysisPage() {
         </h2>
         {history.length === 0 ? (
           <p className="px-5 py-6 text-sm text-slate-500 dark:text-slate-400">
-            Nenhuma análise ainda. Envie um vídeo de agachamento, terra ou desenvolvimento para começar.
+            Nenhuma análise ainda. Escolha o exercício, envie um vídeo da série e receba os pontos
+            corretos e os pontos de atenção da execução.
           </p>
         ) : (
           <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">

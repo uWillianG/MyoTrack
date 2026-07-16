@@ -28,8 +28,13 @@ public class VideoAnalysesController(
         ["video/webm"] = ".webm",
     };
 
-    /// <summary>Exercícios com heurísticas implementadas no serviço vision.</summary>
-    private static readonly string[] SupportedExercises = ["squat", "deadlift", "overhead_press"];
+    /// <summary>Exercícios com heurísticas implementadas no serviço vision (SPECS em vision/app/heuristics.py).</summary>
+    private static readonly string[] SupportedExercises =
+    [
+        "squat", "lunge", "deadlift", "romanian_deadlift", "hip_thrust",
+        "bench_press", "push_up", "overhead_press", "barbell_row",
+        "biceps_curl", "pull_up", "lateral_raise",
+    ];
 
     /// <summary>Passo 1: URL pré-assinada para o browser subir o vídeo direto no MinIO.</summary>
     [HttpPost("presign")]

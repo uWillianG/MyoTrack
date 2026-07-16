@@ -1,0 +1,16 @@
+<Project>
+
+  <!-- Contornos para o Smart App Control do Windows em dev local (Debug).
+       Nenhum efeito em Release, no Docker (Linux) ou em CI. -->
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'">
+    <!-- O SAC bloqueia o apphost .exe não assinado; sem ele, dotnet run
+         executa a DLL pelo dotnet.exe (assinado). -->
+    <UseAppHost>false</UseAppHost>
+    <!-- O SAC pode bloquear uma DLL recém-compilada pelo hash (veredito de
+         reputação por arquivo). Com build determinístico, recompilar o mesmo
+         fonte reproduz o hash bloqueado, travando o dev. Não determinístico,
+         um rebuild completo (dotnet build /t:Rebuild) gera um hash novo e destrava. -->
+    <Deterministic>false</Deterministic>
+  </PropertyGroup>
+
+</Project>

@@ -21,10 +21,15 @@ public record VisionIssue(
     [property: JsonPropertyName("message")] string Message,
     [property: JsonPropertyName("timestamps_sec")] List<double> TimestampsSec);
 
+public record VisionCorrectPoint(
+    [property: JsonPropertyName("code")] string Code,
+    [property: JsonPropertyName("message")] string Message);
+
 public record VisionAnalyzeResponse(
     [property: JsonPropertyName("score")] int? Score,
     [property: JsonPropertyName("rep_count")] int RepCount,
     [property: JsonPropertyName("issues")] List<VisionIssue> Issues,
+    [property: JsonPropertyName("correct_points")] List<VisionCorrectPoint>? CorrectPoints,
     [property: JsonPropertyName("metrics")] JsonElement Metrics,
     [property: JsonPropertyName("not_evaluable_reason")] string? NotEvaluableReason,
     [property: JsonPropertyName("overlay_key")] string? OverlayKey);
@@ -89,6 +94,7 @@ public class VideoAnalysisService(
             ResultJson = JsonSerializer.Serialize(new
             {
                 issues = result.Issues,
+                correctPoints = result.CorrectPoints ?? [],
                 metrics = result.Metrics,
                 notEvaluableReason = result.NotEvaluableReason,
             }, JsonOptions),

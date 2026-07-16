@@ -36,6 +36,12 @@ public static class ExerciseSeed
         Ex("Remada curvada com barra", MuscleGroup.Back, Equipment.Barbell, true, [MuscleGroup.Biceps, MuscleGroup.LowerBack], ["lower-back"]),
         Ex("Remada baixa sentada", MuscleGroup.Back, Equipment.Cable, true, [MuscleGroup.Biceps]),
         Ex("Remada unilateral com halter (serrote)", MuscleGroup.Back, Equipment.Dumbbell, true, [MuscleGroup.Biceps]),
+        Ex("Barra fixa pegada supinada (chin-up)", MuscleGroup.Back, Equipment.Bodyweight, true, [MuscleGroup.Biceps], ["shoulder", "elbow"]),
+        Ex("Remada cavalinho (T-bar)", MuscleGroup.Back, Equipment.Barbell, true, [MuscleGroup.Biceps, MuscleGroup.LowerBack], ["lower-back"]),
+        Ex("Remada na máquina", MuscleGroup.Back, Equipment.Machine, true, [MuscleGroup.Biceps]),
+        Ex("Puxada na polia com pegada fechada (triângulo)", MuscleGroup.Back, Equipment.Cable, true, [MuscleGroup.Biceps], ["shoulder"]),
+        Ex("Pullover na polia com braços estendidos", MuscleGroup.Back, Equipment.Cable, false, null, ["shoulder"]),
+        Ex("Encolhimento com halteres (trapézio)", MuscleGroup.Back, Equipment.Dumbbell, false, null, ["neck"]),
 
         // Ombros
         Ex("Desenvolvimento militar com barra", MuscleGroup.Shoulders, Equipment.Barbell, true, [MuscleGroup.Triceps], ["shoulder", "lower-back"]),
@@ -49,6 +55,10 @@ public static class ExerciseSeed
         Ex("Rosca alternada com halteres", MuscleGroup.Biceps, Equipment.Dumbbell, false, null, ["elbow"]),
         Ex("Rosca martelo", MuscleGroup.Biceps, Equipment.Dumbbell, false, [MuscleGroup.Forearms]),
         Ex("Rosca Scott na máquina", MuscleGroup.Biceps, Equipment.Machine, false, null, ["elbow"]),
+        Ex("Rosca concentrada", MuscleGroup.Biceps, Equipment.Dumbbell, false, null, ["elbow"]),
+        Ex("Rosca na polia baixa", MuscleGroup.Biceps, Equipment.Cable, false, null, ["elbow"]),
+        Ex("Rosca martelo no cabo (corda)", MuscleGroup.Biceps, Equipment.Cable, false, [MuscleGroup.Forearms]),
+        Ex("Rosca inversa com barra W", MuscleGroup.Biceps, Equipment.Barbell, false, [MuscleGroup.Forearms], ["wrist", "elbow"]),
 
         // Tríceps
         Ex("Tríceps na polia (pushdown)", MuscleGroup.Triceps, Equipment.Cable, false, null, ["elbow"]),

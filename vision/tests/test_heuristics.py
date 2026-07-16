@@ -198,6 +198,41 @@ r = run("pull_up", make_curl(4, top_flex=110, bottom_ext=140, trunk_swing=0))
 check("barra fixa curta: detecta incomplete_pull e incomplete_extension",
       "incomplete_pull" in codes(r) and "incomplete_extension" in codes(r), f"(issues={codes(r)})")
 
+# --- Puxada alta / remadas -------------------------------------------------
+r = run("lat_pulldown", make_curl(4, top_flex=70, bottom_ext=170, trunk_swing=0))
+check("puxada alta boa: sem issues", not r.issues, f"(issues={codes(r)})")
+check("puxada alta boa: 3 pontos corretos", len(r.correct_points) == 3, f"(ok={ok_codes(r)})")
+
+r = run("lat_pulldown", make_curl(4, top_flex=110, bottom_ext=170, trunk_swing=30))
+check("puxada alta ruim: detecta incomplete_pull", "incomplete_pull" in codes(r), f"(issues={codes(r)})")
+check("puxada alta ruim: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
+
+r = run("seated_cable_row", make_curl(4, top_flex=70, bottom_ext=170, trunk_swing=0))
+check("remada baixa boa: sem issues", not r.issues, f"(issues={codes(r)})")
+
+r = run("seated_cable_row", make_curl(4, top_flex=70, bottom_ext=130, trunk_swing=0))
+check("remada baixa sem retorno: detecta incomplete_extension", "incomplete_extension" in codes(r), f"(issues={codes(r)})")
+
+r = run("dumbbell_row", make_curl(4, top_flex=70, bottom_ext=170, trunk_swing=0))
+check("serrote bom: sem issues", not r.issues, f"(issues={codes(r)})")
+
+r = run("dumbbell_row", make_curl(4, top_flex=70, bottom_ext=170, trunk_swing=25))
+check("serrote com balanco: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
+
+# --- Rosca martelo / Scott --------------------------------------------------
+r = run("hammer_curl", make_curl(4, top_flex=50, bottom_ext=170, trunk_swing=0))
+check("martelo boa: sem issues", not r.issues, f"(issues={codes(r)})")
+
+r = run("hammer_curl", make_curl(4, top_flex=90, bottom_ext=170, trunk_swing=25))
+check("martelo ruim: detecta incomplete_curl e torso_swing",
+      "incomplete_curl" in codes(r) and "torso_swing" in codes(r), f"(issues={codes(r)})")
+
+r = run("preacher_curl", make_curl(4, top_flex=50, bottom_ext=170, trunk_swing=0))
+check("scott boa: sem issues e 2 pontos corretos", not r.issues and len(r.correct_points) == 2, f"(ok={ok_codes(r)})")
+
+r = run("preacher_curl", make_curl(4, top_flex=50, bottom_ext=120, trunk_swing=0))
+check("scott sem estender: detecta incomplete_extension", "incomplete_extension" in codes(r), f"(issues={codes(r)})")
+
 # --- Remada curvada --------------------------------------------------------
 r = run("barbell_row", make_curl(4, top_flex=70, bottom_ext=170, trunk_swing=0))
 check("remada boa: sem issues", not r.issues, f"(issues={codes(r)})")
@@ -222,7 +257,7 @@ check("elevacao lateral curta: detecta short_range", "short_range" in codes(r), 
 check("elevacao lateral com balanco: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
 
 # --- Catálogo completo -----------------------------------------------------
-check("catalogo: 12 exercicios", len(heuristics.HEURISTICS) == 12, f"(n={len(heuristics.HEURISTICS)})")
+check("catalogo: 17 exercicios", len(heuristics.HEURISTICS) == 17, f"(n={len(heuristics.HEURISTICS)})")
 
 print()
 print("TODOS OS TESTES PASSARAM" if ok else "HA FALHAS")

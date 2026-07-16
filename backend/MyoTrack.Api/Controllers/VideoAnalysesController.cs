@@ -32,8 +32,9 @@ public class VideoAnalysesController(
     private static readonly string[] SupportedExercises =
     [
         "squat", "lunge", "deadlift", "romanian_deadlift", "hip_thrust",
-        "bench_press", "push_up", "overhead_press", "barbell_row",
-        "biceps_curl", "pull_up", "lateral_raise",
+        "bench_press", "push_up", "overhead_press",
+        "barbell_row", "lat_pulldown", "seated_cable_row", "dumbbell_row", "pull_up",
+        "biceps_curl", "hammer_curl", "preacher_curl", "lateral_raise",
     ];
 
     /// <summary>Passo 1: URL pré-assinada para o browser subir o vídeo direto no MinIO.</summary>

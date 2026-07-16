@@ -16,9 +16,13 @@ public static class DbSeeder
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
         }
 
-        if (!await db.Exercises.AnyAsync())
+        // Idempotente por nome: itens novos do catálogo entram também em bancos já populados.
+        var existingNames = (await db.Exercises.Select(e => e.Name).ToListAsync())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var missingExercises = ExerciseSeed.Items.Where(e => !existingNames.Contains(e.Name)).ToList();
+        if (missingExercises.Count > 0)
         {
-            db.Exercises.AddRange(ExerciseSeed.Items);
+            db.Exercises.AddRange(missingExercises);
             await db.SaveChangesAsync();
         }
 

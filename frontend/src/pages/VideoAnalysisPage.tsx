@@ -47,7 +47,12 @@ const exerciseLabels: Record<string, string> = {
   push_up: 'Flexão de braço',
   overhead_press: 'Desenvolvimento (militar)',
   barbell_row: 'Remada curvada',
+  lat_pulldown: 'Puxada alta (pulldown)',
+  seated_cable_row: 'Remada baixa sentada',
+  dumbbell_row: 'Remada serrote (unilateral)',
   biceps_curl: 'Rosca bíceps',
+  hammer_curl: 'Rosca martelo',
+  preacher_curl: 'Rosca Scott',
   pull_up: 'Barra fixa',
   lateral_raise: 'Elevação lateral',
 }

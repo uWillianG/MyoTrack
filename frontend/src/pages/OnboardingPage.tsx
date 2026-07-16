@@ -4,8 +4,8 @@ import { api } from '../lib/api'
 
 const muscleGroups = [
   ['Chest', 'Peito'], ['Back', 'Costas'], ['Shoulders', 'Ombros'], ['Biceps', 'Bíceps'],
-  ['Triceps', 'Tríceps'], ['Quadriceps', 'Quadríceps'], ['Hamstrings', 'Posteriores'],
-  ['Glutes', 'Glúteos'], ['Calves', 'Panturrilhas'], ['Abs', 'Abdômen'],
+  ['Triceps', 'Tríceps'], ['Forearms', 'Antebraços'], ['Quadriceps', 'Quadríceps'],
+  ['Hamstrings', 'Posteriores'], ['Glutes', 'Glúteos'], ['Calves', 'Panturrilhas'], ['Abs', 'Abdômen'],
 ] as const
 
 const equipmentOptions = [

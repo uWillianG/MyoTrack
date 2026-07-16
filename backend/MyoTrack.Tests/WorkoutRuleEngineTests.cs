@@ -114,6 +114,18 @@ public class WorkoutRuleEngineTests
     }
 
     [Fact]
+    public void ForearmExercises_AppearOnPullDays()
+    {
+        var catalog = Catalog().ToDictionary(e => e.Id);
+        foreach (var days in new[] { 2, 3, 4, 5 })
+        {
+            var plan = WorkoutRuleEngine.Generate(Input(days: days), catalog.Values.ToList());
+            Assert.Contains(plan.Days.SelectMany(d => d.Exercises),
+                e => catalog[e.ExerciseId].PrimaryMuscleGroup == MuscleGroup.Forearms);
+        }
+    }
+
+    [Fact]
     public void NoDuplicateExerciseWithinSameDay()
     {
         var plan = WorkoutRuleEngine.Generate(Input(days: 5, level: ExperienceLevel.Advanced), Catalog());

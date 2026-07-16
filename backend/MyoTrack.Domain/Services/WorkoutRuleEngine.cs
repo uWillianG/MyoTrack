@@ -27,16 +27,16 @@ public static class WorkoutRuleEngine
     {
         <= 2 => ("FullBody", [
             new("A — Corpo inteiro", [MuscleGroup.Quadriceps, MuscleGroup.Chest, MuscleGroup.Back, MuscleGroup.Shoulders, MuscleGroup.Abs]),
-            new("B — Corpo inteiro", [MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Back, MuscleGroup.Chest, MuscleGroup.Biceps, MuscleGroup.Triceps]),
+            new("B — Corpo inteiro", [MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Back, MuscleGroup.Chest, MuscleGroup.Biceps, MuscleGroup.Triceps, MuscleGroup.Forearms]),
         ]),
         3 => ("ABC", [
             new("A — Peito/Ombros/Tríceps", [MuscleGroup.Chest, MuscleGroup.Shoulders, MuscleGroup.Triceps]),
-            new("B — Costas/Bíceps", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Abs]),
+            new("B — Costas/Bíceps/Antebraços", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Forearms, MuscleGroup.Abs]),
             new("C — Pernas", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Calves]),
         ]),
         4 => ("ABCD", [
             new("A — Peito/Tríceps", [MuscleGroup.Chest, MuscleGroup.Triceps]),
-            new("B — Costas/Bíceps", [MuscleGroup.Back, MuscleGroup.Biceps]),
+            new("B — Costas/Bíceps/Antebraços", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Forearms]),
             new("C — Pernas", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Calves]),
             new("D — Ombros/Abdômen", [MuscleGroup.Shoulders, MuscleGroup.Abs]),
         ]),
@@ -45,7 +45,7 @@ public static class WorkoutRuleEngine
             new("B — Pull (Costas/Bíceps)", [MuscleGroup.Back, MuscleGroup.Biceps]),
             new("C — Legs (Pernas)", [MuscleGroup.Quadriceps, MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Calves]),
             new("D — Push (variação)", [MuscleGroup.Chest, MuscleGroup.Shoulders, MuscleGroup.Triceps]),
-            new("E — Pull + Abdômen", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Abs]),
+            new("E — Pull + Abdômen", [MuscleGroup.Back, MuscleGroup.Biceps, MuscleGroup.Forearms, MuscleGroup.Abs]),
         ]),
     };
 

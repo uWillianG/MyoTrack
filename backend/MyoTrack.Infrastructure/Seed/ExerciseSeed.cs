@@ -71,6 +71,13 @@ public static class ExerciseSeed
         Ex("Rosca martelo no cabo (corda)", MuscleGroup.Biceps, Equipment.Cable, false, [MuscleGroup.Forearms]),
         Ex("Rosca inversa com barra W", MuscleGroup.Biceps, Equipment.Barbell, false, [MuscleGroup.Forearms], ["wrist", "elbow"]),
 
+        // Antebraços
+        Ex("Rosca de punho com barra", MuscleGroup.Forearms, Equipment.Barbell, false, null, ["wrist"]),
+        Ex("Extensão de punho com barra", MuscleGroup.Forearms, Equipment.Barbell, false, null, ["wrist", "elbow"]),
+        Ex("Rosca de punho com halter no banco", MuscleGroup.Forearms, Equipment.Dumbbell, false, null, ["wrist"]),
+        Ex("Rosca de punho na polia baixa", MuscleGroup.Forearms, Equipment.Cable, false, null, ["wrist"]),
+        Ex("Hand grip (alicate de força)", MuscleGroup.Forearms, Equipment.None, false, null, ["wrist"]),
+
         // Tríceps
         Ex("Tríceps na polia (pushdown)", MuscleGroup.Triceps, Equipment.Cable, false, null, ["elbow"]),
         Ex("Tríceps testa com barra W", MuscleGroup.Triceps, Equipment.Barbell, false, null, ["elbow"]),

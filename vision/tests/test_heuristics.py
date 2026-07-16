@@ -99,6 +99,13 @@ def make_shrug(reps, elbow, trunk_swing):
         t, elbow=elbow, trunk=5 + trunk_swing * d, shoulder_y=0.25 - 0.04 * d))
 
 
+def make_calf_raise(reps, knee_at_top, trunk_swing):
+    # Corpo inteiro sobe ~0.04 normalizado (quadril acompanha o calcanhar).
+    return series(reps, lambda t, d: neutral(
+        t, knee=175 - (175 - knee_at_top) * d, trunk=5 + trunk_swing * d,
+        hip_y=0.50 - 0.04 * d))
+
+
 def run(exercise, frames):
     return heuristics.HEURISTICS[exercise](frames)
 
@@ -309,8 +316,21 @@ check("encolhimento ruim: detecta torso_swing", "torso_swing" in codes(r), f"(is
 r = run("shrug", [neutral(i / FPS) for i in range(60)])
 check("encolhimento parado: nao avaliavel", r.not_evaluable_reason is not None)
 
+# --- Panturrilha em pé ------------------------------------------------------
+r = run("calf_raise", make_calf_raise(4, knee_at_top=175, trunk_swing=0))
+check("panturrilha boa: 4 reps", r.rep_count == 4, f"(reps={r.rep_count})")
+check("panturrilha boa: sem issues e 2 pontos corretos",
+      not r.issues and len(r.correct_points) == 2, f"(ok={ok_codes(r)})")
+
+r = run("calf_raise", make_calf_raise(4, knee_at_top=145, trunk_swing=15))
+check("panturrilha ruim: detecta knee_bend", "knee_bend" in codes(r), f"(issues={codes(r)})")
+check("panturrilha ruim: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
+
+r = run("calf_raise", [neutral(i / FPS) for i in range(60)])
+check("panturrilha parada: nao avaliavel", r.not_evaluable_reason is not None)
+
 # --- Catálogo completo -----------------------------------------------------
-check("catalogo: 22 exercicios", len(heuristics.HEURISTICS) == 22, f"(n={len(heuristics.HEURISTICS)})")
+check("catalogo: 23 exercicios", len(heuristics.HEURISTICS) == 23, f"(n={len(heuristics.HEURISTICS)})")
 
 print()
 print("TODOS OS TESTES PASSARAM" if ok else "HA FALHAS")

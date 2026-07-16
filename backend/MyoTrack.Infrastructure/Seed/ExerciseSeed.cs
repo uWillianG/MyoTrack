@@ -115,6 +115,10 @@ public static class ExerciseSeed
         // Panturrilhas
         Ex("Panturrilha em pé na máquina", MuscleGroup.Calves, Equipment.Machine, false),
         Ex("Panturrilha sentado", MuscleGroup.Calves, Equipment.Machine, false),
+        Ex("Panturrilha em pé com halteres", MuscleGroup.Calves, Equipment.Dumbbell, false),
+        Ex("Panturrilha no leg press", MuscleGroup.Calves, Equipment.Machine, false),
+        Ex("Panturrilha em pé no degrau (peso corporal)", MuscleGroup.Calves, Equipment.Bodyweight, false),
+        Ex("Panturrilha unilateral no degrau com halter", MuscleGroup.Calves, Equipment.Dumbbell, false),
 
         // Abdômen
         Ex("Prancha abdominal", MuscleGroup.Abs, Equipment.Bodyweight, false, null, ["lower-back", "shoulder"]),

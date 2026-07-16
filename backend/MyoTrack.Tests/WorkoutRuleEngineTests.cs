@@ -116,6 +116,7 @@ public class WorkoutRuleEngineTests
     [Theory]
     [InlineData(MuscleGroup.Forearms)]
     [InlineData(MuscleGroup.Traps)]
+    [InlineData(MuscleGroup.Calves)]
     public void SmallGroups_AppearInAllSplits(MuscleGroup group)
     {
         var catalog = Catalog().ToDictionary(e => e.Id);

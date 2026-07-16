@@ -183,6 +183,12 @@ def _shoulder_elevation(f: FrameSignals) -> float:
     return f.hip_y - f.shoulder_y
 
 
+def _body_elevation(f: FrameSignals) -> float:
+    # Na elevação de calcanhar o corpo inteiro sobe — o quadril acompanha
+    # (sinais relativos entre articulações se cancelam; aqui o absoluto é o certo).
+    return -f.hip_y
+
+
 def _trunk_stable(rep: Rep, max_range: float) -> bool:
     angles = [f.trunk_angle for f in rep.segment or rep.window]
     return max(angles) - min(angles) <= max_range
@@ -457,6 +463,19 @@ SPECS: dict[str, ExerciseSpec] = {
                   "Estenda os braços por completo na descida (dead hang).",
                   "Extensão completa dos braços na descida.",
                   lambda rep: max(f.elbow_angle for f in rep.segment or rep.window) >= 160),
+        ]),
+    "calf_raise": ExerciseSpec(
+        label="panturrilha em pé", signal=_body_elevation, signal_name="body_elevation",
+        extremum="top", min_range=MIN_SHRUG_TRAVEL,
+        checks=[
+            Check("knee_bend",
+                  "Joelhos dobrando durante a subida — mantenha-os estendidos para isolar a panturrilha.",
+                  "Joelhos estendidos — o trabalho ficou na panturrilha.",
+                  lambda rep: min(f.knee_angle for f in rep.segment or rep.window) >= 160),
+            Check("torso_swing",
+                  "Corpo inclinando para ganhar impulso — suba na vertical, com controle.",
+                  "Subida vertical e controlada, sem impulso.",
+                  lambda rep: _trunk_stable(rep, 10)),
         ]),
     "shrug": ExerciseSpec(
         label="encolhimento", signal=_shoulder_elevation, signal_name="shoulder_elevation",

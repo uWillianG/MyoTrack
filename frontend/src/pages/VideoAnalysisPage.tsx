@@ -43,6 +43,7 @@ const exerciseLabels: Record<string, string> = {
   deadlift: 'Levantamento terra',
   romanian_deadlift: 'Terra romeno (stiff)',
   hip_thrust: 'Elevação de quadril (hip thrust)',
+  calf_raise: 'Panturrilha em pé',
   bench_press: 'Supino',
   push_up: 'Flexão de braço',
   dips: 'Mergulho em paralelas (dips)',

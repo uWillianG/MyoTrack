@@ -26,7 +26,7 @@ public static class WorkoutRuleEngine
     private static (string Split, DayTemplate[] Days) SplitFor(int daysPerWeek) => daysPerWeek switch
     {
         <= 2 => ("FullBody", [
-            new("A — Corpo inteiro", [MuscleGroup.Quadriceps, MuscleGroup.Chest, MuscleGroup.Back, MuscleGroup.Shoulders, MuscleGroup.Traps, MuscleGroup.Abs]),
+            new("A — Corpo inteiro", [MuscleGroup.Quadriceps, MuscleGroup.Calves, MuscleGroup.Chest, MuscleGroup.Back, MuscleGroup.Shoulders, MuscleGroup.Traps, MuscleGroup.Abs]),
             new("B — Corpo inteiro", [MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.Back, MuscleGroup.Chest, MuscleGroup.Biceps, MuscleGroup.Triceps, MuscleGroup.Forearms]),
         ]),
         3 => ("ABC", [

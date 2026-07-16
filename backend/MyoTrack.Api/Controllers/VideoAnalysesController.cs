@@ -31,7 +31,7 @@ public class VideoAnalysesController(
     /// <summary>Exercícios com heurísticas implementadas no serviço vision (SPECS em vision/app/heuristics.py).</summary>
     private static readonly string[] SupportedExercises =
     [
-        "squat", "lunge", "deadlift", "romanian_deadlift", "hip_thrust",
+        "squat", "lunge", "deadlift", "romanian_deadlift", "hip_thrust", "calf_raise",
         "bench_press", "push_up", "dips", "overhead_press",
         "barbell_row", "lat_pulldown", "seated_cable_row", "dumbbell_row", "pull_up",
         "biceps_curl", "hammer_curl", "preacher_curl", "triceps_pushdown",

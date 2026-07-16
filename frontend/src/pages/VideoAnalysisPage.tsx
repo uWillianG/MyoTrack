@@ -45,6 +45,8 @@ const exerciseLabels: Record<string, string> = {
   hip_thrust: 'Elevação de quadril (hip thrust)',
   bench_press: 'Supino',
   push_up: 'Flexão de braço',
+  dips: 'Mergulho em paralelas (dips)',
+  triceps_pushdown: 'Tríceps na polia (pushdown)',
   overhead_press: 'Desenvolvimento (militar)',
   barbell_row: 'Remada curvada',
   lat_pulldown: 'Puxada alta (pulldown)',

@@ -180,6 +180,24 @@ check("flexao boa: sem issues", not r.issues, f"(issues={codes(r)})")
 r = run("push_up", make_pushup(4, bottom_elbow=80, hip_line=130))
 check("flexao com quadril caido: detecta hip_sag", "hip_sag" in codes(r), f"(issues={codes(r)})")
 
+# --- Mergulho em paralelas -------------------------------------------------
+r = run("dips", make_curl(4, top_flex=80, bottom_ext=175, trunk_swing=0))
+check("dips bom: sem issues e 2 pontos corretos", not r.issues and len(r.correct_points) == 2, f"(ok={ok_codes(r)})")
+
+r = run("dips", make_curl(4, top_flex=120, bottom_ext=150, trunk_swing=0))
+check("dips raso: detecta insufficient_depth e incomplete_lockout",
+      "insufficient_depth" in codes(r) and "incomplete_lockout" in codes(r), f"(issues={codes(r)})")
+
+# --- Tríceps na polia ------------------------------------------------------
+r = run("triceps_pushdown", make_curl(4, top_flex=70, bottom_ext=175, trunk_swing=0))
+check("pushdown bom: sem issues", not r.issues, f"(issues={codes(r)})")
+check("pushdown bom: 3 pontos corretos", len(r.correct_points) == 3, f"(ok={ok_codes(r)})")
+
+r = run("triceps_pushdown", make_curl(4, top_flex=110, bottom_ext=145, trunk_swing=25))
+check("pushdown ruim: detecta incomplete_extension", "incomplete_extension" in codes(r), f"(issues={codes(r)})")
+check("pushdown ruim: detecta short_range", "short_range" in codes(r), f"(issues={codes(r)})")
+check("pushdown ruim: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
+
 # --- Rosca bíceps ----------------------------------------------------------
 r = run("biceps_curl", make_curl(4, top_flex=50, bottom_ext=170, trunk_swing=0))
 check("rosca boa: sem issues", not r.issues, f"(issues={codes(r)})")
@@ -257,7 +275,7 @@ check("elevacao lateral curta: detecta short_range", "short_range" in codes(r), 
 check("elevacao lateral com balanco: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
 
 # --- Catálogo completo -----------------------------------------------------
-check("catalogo: 17 exercicios", len(heuristics.HEURISTICS) == 17, f"(n={len(heuristics.HEURISTICS)})")
+check("catalogo: 19 exercicios", len(heuristics.HEURISTICS) == 19, f"(n={len(heuristics.HEURISTICS)})")
 
 print()
 print("TODOS OS TESTES PASSARAM" if ok else "HA FALHAS")

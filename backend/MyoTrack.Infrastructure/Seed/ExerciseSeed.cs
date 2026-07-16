@@ -28,6 +28,12 @@ public static class ExerciseSeed
         Ex("Crucifixo na máquina (peck deck)", MuscleGroup.Chest, Equipment.Machine, false, null, ["shoulder"]),
         Ex("Crossover na polia", MuscleGroup.Chest, Equipment.Cable, false),
         Ex("Flexão de braço", MuscleGroup.Chest, Equipment.Bodyweight, true, [MuscleGroup.Triceps, MuscleGroup.Shoulders], ["wrist"]),
+        Ex("Supino reto com halteres", MuscleGroup.Chest, Equipment.Dumbbell, true, [MuscleGroup.Triceps, MuscleGroup.Shoulders], ["shoulder"]),
+        Ex("Supino declinado com barra", MuscleGroup.Chest, Equipment.Barbell, true, [MuscleGroup.Triceps], ["shoulder"]),
+        Ex("Supino na máquina (chest press)", MuscleGroup.Chest, Equipment.Machine, true, [MuscleGroup.Triceps]),
+        Ex("Crucifixo reto com halteres", MuscleGroup.Chest, Equipment.Dumbbell, false, null, ["shoulder"]),
+        Ex("Flexão com pés elevados", MuscleGroup.Chest, Equipment.Bodyweight, true, [MuscleGroup.Triceps, MuscleGroup.Shoulders], ["wrist", "shoulder"]),
+        Ex("Pullover com halter", MuscleGroup.Chest, Equipment.Dumbbell, false, [MuscleGroup.Back], ["shoulder"]),
 
         // Costas
         Ex("Levantamento terra", MuscleGroup.Back, Equipment.Barbell, true, [MuscleGroup.Hamstrings, MuscleGroup.Glutes, MuscleGroup.LowerBack], ["lower-back", "knee"]),
@@ -65,6 +71,10 @@ public static class ExerciseSeed
         Ex("Tríceps testa com barra W", MuscleGroup.Triceps, Equipment.Barbell, false, null, ["elbow"]),
         Ex("Tríceps francês com halter", MuscleGroup.Triceps, Equipment.Dumbbell, false, null, ["elbow", "shoulder"]),
         Ex("Mergulho em paralelas (dips)", MuscleGroup.Triceps, Equipment.Bodyweight, true, [MuscleGroup.Chest, MuscleGroup.Shoulders], ["shoulder", "elbow"]),
+        Ex("Tríceps corda na polia", MuscleGroup.Triceps, Equipment.Cable, false, null, ["elbow"]),
+        Ex("Tríceps coice com halter (kickback)", MuscleGroup.Triceps, Equipment.Dumbbell, false, null, ["elbow"]),
+        Ex("Tríceps no banco (bench dips)", MuscleGroup.Triceps, Equipment.Bodyweight, true, [MuscleGroup.Shoulders, MuscleGroup.Chest], ["shoulder", "wrist"]),
+        Ex("Extensão de tríceps na máquina", MuscleGroup.Triceps, Equipment.Machine, false, null, ["elbow"]),
 
         // Quadríceps
         Ex("Agachamento livre com barra", MuscleGroup.Quadriceps, Equipment.Barbell, true, [MuscleGroup.Glutes, MuscleGroup.Hamstrings, MuscleGroup.LowerBack], ["knee", "lower-back", "hip"]),

@@ -283,6 +283,37 @@ SPECS: dict[str, ExerciseSpec] = {
                   "Corpo alinhado durante toda a flexão, como uma prancha.",
                   lambda rep: min(f.hip_angle for f in rep.segment or rep.window) >= 150),
         ]),
+    "dips": ExerciseSpec(
+        label="mergulho em paralelas", signal=_elbow, signal_name="elbow_angle_deg",
+        extremum="bottom", min_range=MIN_SIGNAL_RANGE_DEG,
+        checks=[
+            Check("insufficient_depth",
+                  "Desça mais — dobre os cotovelos até cerca de 90°.",
+                  "Boa profundidade na descida.",
+                  lambda rep: min(f.elbow_angle for f in rep.window) <= 100),
+            Check("incomplete_lockout",
+                  "Estenda os cotovelos por completo no topo do movimento.",
+                  "Extensão completa dos cotovelos no topo.",
+                  lambda rep: max(f.elbow_angle for f in rep.segment or rep.window) >= 160),
+        ]),
+    "triceps_pushdown": ExerciseSpec(
+        # O extremo da rep é a EXTENSÃO do cotovelo (empurrão até embaixo).
+        label="tríceps na polia", signal=_elbow, signal_name="elbow_angle_deg",
+        extremum="top", min_range=MIN_SIGNAL_RANGE_DEG,
+        checks=[
+            Check("incomplete_extension",
+                  "Estenda o cotovelo por completo no fim do empurrão.",
+                  "Extensão completa do cotovelo no fim do empurrão.",
+                  lambda rep: max(f.elbow_angle for f in rep.window) >= 160),
+            Check("short_range",
+                  "Amplitude curta — deixe o antebraço subir controlado até fechar o cotovelo.",
+                  "Boa amplitude no retorno do movimento.",
+                  lambda rep: min(f.elbow_angle for f in rep.segment or rep.window) <= 100),
+            Check("torso_swing",
+                  "Tronco debruçando sobre a polia para empurrar — mantenha o corpo parado.",
+                  "Tronco estável — força só do tríceps.",
+                  lambda rep: _trunk_stable(rep, 15)),
+        ]),
     "overhead_press": ExerciseSpec(
         label="desenvolvimento", signal=_wrist_height, signal_name="wrist_height",
         extremum="top", min_range=MIN_WRIST_TRAVEL,

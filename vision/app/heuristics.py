@@ -452,6 +452,33 @@ SPECS: dict[str, ExerciseSpec] = {
                   "Extensão completa dos braços na descida.",
                   lambda rep: max(f.elbow_angle for f in rep.segment or rep.window) >= 160),
         ]),
+    "front_raise": ExerciseSpec(
+        # Elevação no plano sagital — a mais visível de todas na câmera lateral.
+        label="elevação frontal", signal=_wrist_height, signal_name="wrist_height",
+        extremum="top", min_range=MIN_WRIST_TRAVEL,
+        checks=[
+            Check("short_range",
+                  "Suba os braços até a linha dos ombros.",
+                  "Braços subindo até a linha dos ombros.",
+                  lambda rep: min(f.wrist_y - f.shoulder_y for f in rep.window) <= 0.03),
+            Check("torso_swing",
+                  "Balanço de tronco para impulsionar o peso — mantenha o corpo parado.",
+                  "Sem balanço de tronco — movimento controlado.",
+                  lambda rep: _trunk_stable(rep, 12)),
+        ]),
+    "upright_row": ExerciseSpec(
+        label="remada alta", signal=_wrist_height, signal_name="wrist_height",
+        extremum="top", min_range=MIN_WRIST_TRAVEL,
+        checks=[
+            Check("short_range",
+                  "Puxada curta — suba a barra até a linha do peitoral superior, cotovelos na altura dos ombros.",
+                  "Barra subindo até a linha do peitoral superior.",
+                  lambda rep: min(f.wrist_y - f.shoulder_y for f in rep.window) <= 0.10),
+            Check("torso_swing",
+                  "Balanço de tronco para impulsionar a barra — mantenha o corpo parado.",
+                  "Sem balanço de tronco — puxada controlada.",
+                  lambda rep: _trunk_stable(rep, 15)),
+        ]),
     "lateral_raise": ExerciseSpec(
         label="elevação lateral", signal=_wrist_height, signal_name="wrist_height",
         extremum="top", min_range=MIN_WRIST_TRAVEL,

@@ -274,8 +274,24 @@ r = run("lateral_raise", make_lateral_raise(4, top_wrist_above_shoulder=-0.10, t
 check("elevacao lateral curta: detecta short_range", "short_range" in codes(r), f"(issues={codes(r)})")
 check("elevacao lateral com balanco: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
 
+# --- Elevação frontal / remada alta ----------------------------------------
+r = run("front_raise", make_lateral_raise(4, top_wrist_above_shoulder=0.0, trunk_swing=0))
+check("elevacao frontal boa: sem issues e 2 pontos corretos",
+      not r.issues and len(r.correct_points) == 2, f"(ok={ok_codes(r)})")
+
+r = run("front_raise", make_lateral_raise(4, top_wrist_above_shoulder=-0.10, trunk_swing=20))
+check("elevacao frontal curta: detecta short_range e torso_swing",
+      "short_range" in codes(r) and "torso_swing" in codes(r), f"(issues={codes(r)})")
+
+r = run("upright_row", make_lateral_raise(4, top_wrist_above_shoulder=-0.05, trunk_swing=0))
+check("remada alta boa: sem issues", not r.issues, f"(issues={codes(r)})")
+
+r = run("upright_row", make_lateral_raise(4, top_wrist_above_shoulder=-0.13, trunk_swing=25))
+check("remada alta curta: detecta short_range", "short_range" in codes(r), f"(issues={codes(r)})")
+check("remada alta com balanco: detecta torso_swing", "torso_swing" in codes(r), f"(issues={codes(r)})")
+
 # --- Catálogo completo -----------------------------------------------------
-check("catalogo: 19 exercicios", len(heuristics.HEURISTICS) == 19, f"(n={len(heuristics.HEURISTICS)})")
+check("catalogo: 21 exercicios", len(heuristics.HEURISTICS) == 21, f"(n={len(heuristics.HEURISTICS)})")
 
 print()
 print("TODOS OS TESTES PASSARAM" if ok else "HA FALHAS")

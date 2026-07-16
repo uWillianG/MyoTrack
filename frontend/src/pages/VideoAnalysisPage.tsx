@@ -57,6 +57,8 @@ const exerciseLabels: Record<string, string> = {
   preacher_curl: 'Rosca Scott',
   pull_up: 'Barra fixa',
   lateral_raise: 'Elevação lateral',
+  front_raise: 'Elevação frontal',
+  upright_row: 'Remada alta',
 }
 
 const MAX_VIDEO_BYTES = 100 * 1024 * 1024

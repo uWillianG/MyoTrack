@@ -55,6 +55,11 @@ public static class ExerciseSeed
         Ex("Elevação lateral com halteres", MuscleGroup.Shoulders, Equipment.Dumbbell, false, null, ["shoulder"]),
         Ex("Elevação frontal com halteres", MuscleGroup.Shoulders, Equipment.Dumbbell, false, null, ["shoulder"]),
         Ex("Crucifixo inverso na máquina", MuscleGroup.Shoulders, Equipment.Machine, false),
+        Ex("Desenvolvimento na máquina", MuscleGroup.Shoulders, Equipment.Machine, true, [MuscleGroup.Triceps], ["shoulder"]),
+        Ex("Desenvolvimento Arnold com halteres", MuscleGroup.Shoulders, Equipment.Dumbbell, true, [MuscleGroup.Triceps], ["shoulder"]),
+        Ex("Elevação lateral na polia", MuscleGroup.Shoulders, Equipment.Cable, false, null, ["shoulder"]),
+        Ex("Remada alta com barra", MuscleGroup.Shoulders, Equipment.Barbell, true, [MuscleGroup.Biceps], ["shoulder", "wrist"]),
+        Ex("Face pull na polia", MuscleGroup.Shoulders, Equipment.Cable, false, [MuscleGroup.Back]),
 
         // Bíceps
         Ex("Rosca direta com barra", MuscleGroup.Biceps, Equipment.Barbell, false, null, ["elbow", "wrist"]),

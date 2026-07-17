@@ -22,6 +22,13 @@ public class MealPhotoAnalysis
     /// <summary>True quando o usuário corrigiu a estimativa (sinal de qualidade para o futuro).</summary>
     public bool UserAdjusted { get; set; }
 
+    /// <summary>
+    /// Versão "ilustrada" da foto (IA anota itens e macros na própria imagem),
+    /// gerada quando o usuário escolhe esse modo. Null = análise padrão ou
+    /// geração indisponível/falhou (a análise continua válida sem ela).
+    /// </summary>
+    public string? IllustratedMediaKey { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>Quando a mídia foi apagada do storage pela política de retenção (LGPD).</summary>

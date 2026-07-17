@@ -58,6 +58,7 @@ services:
       Llm__Model: ${LLM_MODEL:-claude-opus-4-8}
       Llm__GeminiApiKey: ${GEMINI_API_KEY:-}
       Llm__GeminiModel: ${GEMINI_MODEL:-gemini-3.5-flash}
+      Llm__GeminiImageModel: ${GEMINI_IMAGE_MODEL:-gemini-3.1-flash-image}
       Storage__Endpoint: http://minio:9000
       Storage__AccessKey: ${MINIO_ROOT_USER:-myotrack}
       Storage__SecretKey: ${MINIO_ROOT_PASSWORD:-dev-only-password}

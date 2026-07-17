@@ -20,6 +20,9 @@ builder.Services.AddHttpClient(GeminiJsonClient.HttpClientName,
     client => client.Timeout = TimeSpan.FromMinutes(3));
 builder.Services.AddSingleton<AnthropicJsonClient>();
 builder.Services.AddSingleton<GeminiJsonClient>();
+// Edição de imagem (análise ilustrada de refeição) — sempre Gemini, o único
+// provider com geração de imagem; sem chave/cota o serviço degrada sozinho.
+builder.Services.AddSingleton<GeminiImageClient>();
 builder.Services.AddSingleton<ILlmJsonClient>(sp =>
 {
     var llmOptions = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<LlmOptions>>().Value;

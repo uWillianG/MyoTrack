@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MyoTrack.Domain;
 using MyoTrack.Domain.Entities;
 using MyoTrack.Infrastructure.Storage;
@@ -20,9 +21,16 @@ public record MealItemDto(
 /// Análise de refeição por foto: LLM multimodal identifica alimentos e porções;
 /// o backend cruza com o catálogo TACO para os macros oficiais sempre que possível.
 /// </summary>
-public class MealAnalysisService(AppDbContext db, IMediaStorage storage, ILlmJsonClient llm)
+public class MealAnalysisService(
+    AppDbContext db,
+    IMediaStorage storage,
+    ILlmJsonClient llm,
+    GeminiImageClient imageClient,
+    ILogger<MealAnalysisService> logger)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
+    private sealed record MealJobInput(bool Illustrated);
 
     public async Task<Guid> AnalyzeAsync(AnalysisJob job, CancellationToken ct = default)
     {
@@ -103,9 +111,61 @@ public class MealAnalysisService(AppDbContext db, IMediaStorage storage, ILlmJso
         };
         ApplyTotals(analysis, items);
 
+        var input = string.IsNullOrEmpty(job.InputJson)
+            ? null
+            : JsonSerializer.Deserialize<MealJobInput>(job.InputJson, JsonOptions);
+        if (input is { Illustrated: true })
+            analysis.IllustratedMediaKey =
+                await GenerateIllustratedAsync(job, imageBytes, mediaType, items, analysis, ct);
+
         db.MealPhotoAnalyses.Add(analysis);
         await db.SaveChangesAsync(ct);
         return analysis.Id;
+    }
+
+    /// <summary>
+    /// Gera a versão ilustrada (IA anota itens e macros na própria foto).
+    /// Melhor esforço: sem cota/modelo/chave, retorna null e a análise
+    /// padrão segue valendo — nunca falha o job por causa da ilustração.
+    /// </summary>
+    private async Task<string?> GenerateIllustratedAsync(
+        AnalysisJob job, byte[] imageBytes, string mediaType,
+        IReadOnlyList<MealItemDto> items, MealPhotoAnalysis analysis, CancellationToken ct)
+    {
+        var lines = string.Join("\n", items.Select(i =>
+            $"- {i.Description}: {Math.Round(i.QuantityG)} g · {Math.Round(i.KcalPer100g * i.QuantityG / 100m)} kcal"));
+        var instruction = $"""
+            Edite esta foto de refeição adicionando anotações visuais elegantes e legíveis por cima da imagem,
+            como em um infográfico de nutrição. Mantenha a foto original como fundo, sem alterar a comida.
+            Para cada item abaixo, desenhe uma etiqueta discreta apontando para o alimento correspondente,
+            com o nome, a porção e as calorias:
+            {lines}
+            Adicione também um cartão de resumo em um canto com os totais:
+            {Math.Round(analysis.TotalKcal)} kcal · Proteína {Math.Round(analysis.TotalProteinG)} g · Carboidrato {Math.Round(analysis.TotalCarbsG)} g · Gordura {Math.Round(analysis.TotalFatG)} g
+            Todos os textos em português.
+            """;
+
+        var generated = await imageClient.EditImageAsync(imageBytes, mediaType, instruction, ct);
+        if (generated is null)
+        {
+            logger.LogWarning("Análise ilustrada indisponível para o job {JobId}; mantida a análise padrão.", job.Id);
+            return null;
+        }
+
+        db.AiUsageLogs.Add(new AiUsageLog
+        {
+            UserId = job.UserId,
+            Operation = AnalysisJobType.MealPhoto,
+            Model = imageClient.Model,
+            InputTokens = generated.InputTokens,
+            OutputTokens = generated.OutputTokens,
+        });
+
+        var extension = generated.MediaType == "image/jpeg" ? ".jpg" : ".png";
+        var key = $"meals/{job.UserId}/{Guid.NewGuid():N}-ilustrada{extension}";
+        using var stream = new MemoryStream(generated.Bytes);
+        await storage.UploadAsync(key, stream, generated.MediaType);
+        return key;
     }
 
     public static void ApplyTotals(MealPhotoAnalysis analysis, IReadOnlyList<MealItemDto> items)

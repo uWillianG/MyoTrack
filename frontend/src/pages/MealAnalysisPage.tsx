@@ -20,6 +20,7 @@ interface MealAnalysis {
   totalCarbsG: number
   totalFatG: number
   photoUrl?: string | null
+  illustratedUrl?: string | null
   mediaExpired?: boolean
   items: MealItem[]
 }
@@ -50,6 +51,8 @@ export default function MealAnalysisPage() {
   // Orientação real da foto (detectada no onLoad) decide o layout:
   // paisagem = banner largo acima dos macros; retrato = coluna ao lado.
   const [photoOrientation, setPhotoOrientation] = useState<'portrait' | 'landscape' | null>(null)
+  // 'standard' = só os dados; 'illustrated' = IA também anota a própria foto.
+  const [mode, setMode] = useState<'standard' | 'illustrated'>('standard')
   const [draft, setDraft] = useState<MealItem[] | null>(null)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -82,6 +85,7 @@ export default function MealAnalysisPage() {
     try {
       const form = new FormData()
       form.append('photo', file)
+      form.append('illustrated', String(mode === 'illustrated'))
       const response = await apiUpload('/api/meal-analyses', form)
       if (!response.ok) {
         const data = await response.json().catch(() => null)
@@ -149,6 +153,8 @@ export default function MealAnalysisPage() {
     }
   }
 
+  // A versão ilustrada (quando existe) é a imagem principal exibida.
+  const displayUrl = analysis ? (analysis.illustratedUrl ?? analysis.photoUrl) : null
   const items = draft ?? analysis?.items ?? []
   const totals = draft
     ? draft.reduce(
@@ -166,7 +172,16 @@ export default function MealAnalysisPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="page-title">Refeições</h1>
-        <div>
+        <div className="flex items-center gap-2">
+          <select
+            value={mode}
+            onChange={(e) => setMode(e.target.value as 'standard' | 'illustrated')}
+            className="field px-3 py-2 text-sm text-slate-900 dark:text-white"
+            title="Padrão: dados na tela. Ilustrada: a IA também anota os dados na própria foto."
+          >
+            <option value="standard">Análise padrão</option>
+            <option value="illustrated">Análise ilustrada</option>
+          </select>
           <input
             ref={fileInput}
             type="file"
@@ -204,35 +219,52 @@ export default function MealAnalysisPage() {
                 : 'space-y-3'
             }
           >
-            {analysis.photoUrl && (
-              <a
-                href={analysis.photoUrl}
-                target="_blank"
-                rel="noreferrer"
-                title="Abrir foto em tamanho original"
+            {displayUrl && (
+              <div
                 className={
                   photoOrientation === 'portrait'
-                    ? 'card overflow-hidden sm:w-52 shrink-0'
-                    : 'card overflow-hidden block'
+                    ? 'card overflow-hidden sm:w-52 shrink-0 flex flex-col'
+                    : 'card overflow-hidden'
                 }
               >
-                <img
-                  src={analysis.photoUrl}
-                  alt="Foto da refeição analisada"
-                  onLoad={(e) =>
-                    setPhotoOrientation(
-                      e.currentTarget.naturalHeight > e.currentTarget.naturalWidth
-                        ? 'portrait'
-                        : 'landscape',
-                    )
-                  }
-                  className={
-                    photoOrientation === 'portrait'
-                      ? 'w-full h-56 sm:h-full sm:max-h-[26rem] object-cover'
-                      : 'w-full max-h-72 object-cover'
-                  }
-                />
-              </a>
+                <a
+                  href={displayUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Abrir em tamanho original"
+                  className="block flex-1 min-h-0"
+                >
+                  <img
+                    src={displayUrl}
+                    alt={analysis.illustratedUrl ? 'Análise ilustrada da refeição' : 'Foto da refeição analisada'}
+                    onLoad={(e) =>
+                      setPhotoOrientation(
+                        e.currentTarget.naturalHeight > e.currentTarget.naturalWidth
+                          ? 'portrait'
+                          : 'landscape',
+                      )
+                    }
+                    className={
+                      photoOrientation === 'portrait'
+                        ? 'w-full h-56 sm:h-full sm:max-h-[26rem] object-cover'
+                        : 'w-full max-h-72 object-cover'
+                    }
+                  />
+                </a>
+                {analysis.illustratedUrl && analysis.photoUrl && (
+                  <div className="px-3 py-1.5 text-xs text-slate-400 flex justify-between items-center gap-2">
+                    <span>Ilustrada pela IA</span>
+                    <a
+                      href={analysis.photoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-emerald-600 hover:underline whitespace-nowrap"
+                    >
+                      ver original
+                    </a>
+                  </div>
+                )}
+              </div>
             )}
             {analysis.mediaExpired && (
               <div

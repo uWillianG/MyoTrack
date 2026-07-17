@@ -71,6 +71,8 @@ public class MediaRetentionService(
         foreach (var photo in photos)
         {
             await DeleteQuietlyAsync(storage, photo.MediaKey, ct);
+            if (photo.IllustratedMediaKey is not null)
+                await DeleteQuietlyAsync(storage, photo.IllustratedMediaKey, ct);
             photo.MediaExpiredAt = DateTimeOffset.UtcNow;
         }
 

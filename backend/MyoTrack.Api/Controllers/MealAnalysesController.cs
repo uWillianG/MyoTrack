@@ -29,10 +29,14 @@ public class MealAnalysesController(
     private const long MaxFileBytes = 10 * 1024 * 1024;
     private static readonly TimeSpan PhotoUrlExpiry = TimeSpan.FromHours(1);
 
-    /// <summary>Sobe a foto e enfileira a análise em uma única chamada.</summary>
+    /// <summary>
+    /// Sobe a foto e enfileira a análise em uma única chamada.
+    /// illustrated=true pede também a versão anotada na própria imagem
+    /// (melhor esforço — requer modelo de imagem com cota disponível).
+    /// </summary>
     [HttpPost]
     [RequestSizeLimit(MaxFileBytes + 1024)]
-    public async Task<IActionResult> Create(IFormFile photo)
+    public async Task<IActionResult> Create(IFormFile photo, [FromForm] bool illustrated = false)
     {
         if (photo.Length is 0 or > MaxFileBytes)
             return BadRequest(new { error = "Envie uma imagem de até 10 MB." });
@@ -73,6 +77,7 @@ public class MealAnalysesController(
             UserId = CurrentUserId,
             Type = AnalysisJobType.MealPhoto,
             MediaKey = key,
+            InputJson = JsonSerializer.Serialize(new { illustrated }),
         };
         db.AnalysisJobs.Add(job);
         await db.SaveChangesAsync();
@@ -139,9 +144,13 @@ public class MealAnalysesController(
     private async Task<object> ToDtoAsync(MealPhotoAnalysis analysis)
     {
         // Foto expirada pela política de retenção não tem mais arquivo no storage.
-        string? photoUrl = null;
+        string? photoUrl = null, illustratedUrl = null;
         if (analysis.MediaExpiredAt is null)
+        {
             photoUrl = await storage.GetPresignedDownloadUrlAsync(analysis.MediaKey, PhotoUrlExpiry);
+            if (analysis.IllustratedMediaKey is not null)
+                illustratedUrl = await storage.GetPresignedDownloadUrlAsync(analysis.IllustratedMediaKey, PhotoUrlExpiry);
+        }
 
         return new
         {
@@ -153,6 +162,7 @@ public class MealAnalysesController(
             analysis.TotalCarbsG,
             analysis.TotalFatG,
             PhotoUrl = photoUrl,
+            IllustratedUrl = illustratedUrl,
             MediaExpired = analysis.MediaExpiredAt is not null,
             Items = JsonSerializer.Deserialize<List<MealItemDto>>(analysis.ItemsJson, JsonOptions),
         };

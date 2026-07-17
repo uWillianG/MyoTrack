@@ -18,6 +18,13 @@ public class LlmOptions
     public string? GeminiApiKey { get; set; }
     public string GeminiModel { get; set; } = "gemini-3.5-flash";
 
+    /// <summary>
+    /// Modelo de geração/edição de imagem (análise ilustrada de refeição).
+    /// Exige chave Gemini com billing habilitado — o tier gratuito tem cota
+    /// zero para modelos de imagem; sem cota, a análise cai no modo padrão.
+    /// </summary>
+    public string GeminiImageModel { get; set; } = "gemini-3.1-flash-image";
+
     // Nos modelos com raciocínio (Gemini 3.x), os tokens de "thinking" contam
     // dentro deste teto — 4096 truncava respostas antes do texto final.
     public int MaxTokens { get; set; } = 8192;

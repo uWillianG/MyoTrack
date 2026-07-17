@@ -1,8 +1,11 @@
 <Project>
 
   <!-- Contornos para o Smart App Control do Windows em dev local (Debug).
-       Nenhum efeito em Release, no Docker (Linux) ou em CI. -->
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'">
+       Nenhum efeito em Release, no Docker (Linux) ou em CI.
+       Nota: este arquivo é importado antes de o MSBuild aplicar o default
+       Configuration=Debug, então aqui a propriedade costuma estar vazia —
+       por isso a condição é "diferente de Release", e não "igual a Debug". -->
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT' and '$(Configuration)' != 'Release'">
     <!-- O SAC bloqueia o apphost .exe não assinado; sem ele, dotnet run
          executa a DLL pelo dotnet.exe (assinado). -->
     <UseAppHost>false</UseAppHost>

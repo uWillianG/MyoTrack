@@ -16,7 +16,7 @@ public class LlmOptions
 
     /// <summary>Chave da API do Google (Gemini) — AI Studio / Generative Language API.</summary>
     public string? GeminiApiKey { get; set; }
-    public string GeminiModel { get; set; } = "gemini-2.5-flash";
+    public string GeminiModel { get; set; } = "gemini-3.5-flash";
 
     public int MaxTokens { get; set; } = 4096;
 

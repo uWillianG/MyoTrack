@@ -57,8 +57,10 @@ public class MealAnalysisService(AppDbContext db, IMediaStorage storage, ILlmJso
             }),
         }, JsonOptions);
 
+        // Null do cliente = falha de infraestrutura (rate limit, 5xx, resposta
+        // truncada) — transiente, o poller reprocessa; não é erro de negócio.
         var result = await llm.GenerateJsonFromImageAsync(system, user, imageBytes, mediaType, MealSchema(), ct)
-            ?? throw new InvalidOperationException("A análise da imagem falhou. Tente novamente.");
+            ?? throw new TransientAiException("A análise da imagem falhou. Tente novamente.");
 
         db.AiUsageLogs.Add(new AiUsageLog
         {

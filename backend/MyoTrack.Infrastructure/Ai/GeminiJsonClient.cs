@@ -116,12 +116,30 @@ public class GeminiJsonClient(
 
             using var json = JsonDocument.Parse(payload);
             var root = json.RootElement;
-            var text = root.GetProperty("candidates")[0]
-                .GetProperty("content").GetProperty("parts")[0]
-                .GetProperty("text").GetString();
+            string? text = null, finishReason = null;
+            if (root.TryGetProperty("candidates", out var candidates) && candidates.GetArrayLength() > 0)
+            {
+                var candidate = candidates[0];
+                if (candidate.TryGetProperty("finishReason", out var reason))
+                    finishReason = reason.GetString();
+                // MAX_TOKENS pode devolver candidate sem content/parts (os tokens
+                // de raciocínio do modelo consomem o maxOutputTokens antes do texto).
+                if (candidate.TryGetProperty("content", out var contentEl)
+                    && contentEl.TryGetProperty("parts", out var partsEl))
+                {
+                    foreach (var part in partsEl.EnumerateArray())
+                    {
+                        if (part.TryGetProperty("text", out var t))
+                        {
+                            text = t.GetString();
+                            break;
+                        }
+                    }
+                }
+            }
             if (string.IsNullOrWhiteSpace(text))
             {
-                logger.LogWarning("Resposta do Gemini sem texto.");
+                logger.LogWarning("Resposta do Gemini sem texto (finishReason={FinishReason}).", finishReason);
                 return null;
             }
 

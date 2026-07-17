@@ -18,7 +18,9 @@ public class LlmOptions
     public string? GeminiApiKey { get; set; }
     public string GeminiModel { get; set; } = "gemini-3.5-flash";
 
-    public int MaxTokens { get; set; } = 4096;
+    // Nos modelos com raciocínio (Gemini 3.x), os tokens de "thinking" contam
+    // dentro deste teto — 4096 truncava respostas antes do texto final.
+    public int MaxTokens { get; set; } = 8192;
 
     public string EffectiveProvider =>
         !string.IsNullOrWhiteSpace(Provider) ? Provider.Trim().ToLowerInvariant()

@@ -47,6 +47,9 @@ function itemMacros(item: MealItem) {
 export default function MealAnalysisPage() {
   const [history, setHistory] = useState<MealSummary[]>([])
   const [analysis, setAnalysis] = useState<MealAnalysis | null>(null)
+  // Orientação real da foto (detectada no onLoad) decide o layout:
+  // paisagem = banner largo acima dos macros; retrato = coluna ao lado.
+  const [photoOrientation, setPhotoOrientation] = useState<'portrait' | 'landscape' | null>(null)
   const [draft, setDraft] = useState<MealItem[] | null>(null)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -65,6 +68,7 @@ export default function MealAnalysisPage() {
   async function open(id: string) {
     setError(null)
     setDraft(null)
+    setPhotoOrientation(null)
     const response = await api(`/api/meal-analyses/${id}`)
     if (response.ok) setAnalysis(await response.json())
   }
@@ -73,6 +77,7 @@ export default function MealAnalysisPage() {
     setError(null)
     setAnalysis(null)
     setDraft(null)
+    setPhotoOrientation(null)
     setUploading(true)
     try {
       const form = new FormData()
@@ -192,28 +197,59 @@ export default function MealAnalysisPage() {
 
       {analysis && totals && (
         <>
-          <section className="flex flex-col sm:flex-row gap-3">
+          <section
+            className={
+              photoOrientation === 'portrait'
+                ? 'flex flex-col sm:flex-row gap-3'
+                : 'space-y-3'
+            }
+          >
             {analysis.photoUrl && (
               <a
                 href={analysis.photoUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="card overflow-hidden sm:w-56 shrink-0"
                 title="Abrir foto em tamanho original"
+                className={
+                  photoOrientation === 'portrait'
+                    ? 'card overflow-hidden sm:w-52 shrink-0'
+                    : 'card overflow-hidden block'
+                }
               >
                 <img
                   src={analysis.photoUrl}
                   alt="Foto da refeição analisada"
-                  className="w-full h-40 sm:h-full object-cover"
+                  onLoad={(e) =>
+                    setPhotoOrientation(
+                      e.currentTarget.naturalHeight > e.currentTarget.naturalWidth
+                        ? 'portrait'
+                        : 'landscape',
+                    )
+                  }
+                  className={
+                    photoOrientation === 'portrait'
+                      ? 'w-full h-56 sm:h-full sm:max-h-[26rem] object-cover'
+                      : 'w-full max-h-72 object-cover'
+                  }
                 />
               </a>
             )}
             {analysis.mediaExpired && (
-              <div className="card sm:w-56 shrink-0 flex items-center justify-center p-4 text-xs text-slate-400 text-center">
+              <div
+                className={`card flex items-center justify-center p-4 text-xs text-slate-400 text-center ${
+                  photoOrientation === 'portrait' ? 'sm:w-52 shrink-0' : ''
+                }`}
+              >
                 Foto removida pela política de retenção de mídia.
               </div>
             )}
-            <div className="grid grid-cols-2 gap-3 flex-1 content-start">
+            <div
+              className={
+                photoOrientation === 'portrait'
+                  ? 'grid grid-cols-2 gap-3 flex-1 content-start'
+                  : 'grid grid-cols-2 sm:grid-cols-4 gap-3'
+              }
+            >
               {[
                 ['Calorias', totals.kcal, 'kcal'],
                 ['Proteína', totals.protein, 'g'],

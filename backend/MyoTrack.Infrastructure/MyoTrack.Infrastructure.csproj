@@ -10,6 +10,14 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.*" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.*" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.*" />
+    <PackageReference Include="SkiaSharp" Version="4.150.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.150.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Fonte embutida para a análise ilustrada (containers não têm fontes do sistema). -->
+    <EmbeddedResource Include="Assets\Fonts\DejaVuSans.ttf" />
+    <EmbeddedResource Include="Assets\Fonts\DejaVuSans-Bold.ttf" />
   </ItemGroup>
 
   <PropertyGroup>

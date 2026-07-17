@@ -49,6 +49,8 @@ public class MealAnalysisService(
             Para cada item, procure o alimento correspondente na lista de catálogo fornecida e
             informe seu foodItemId; se não houver correspondência razoável, use foodItemId = 0 e
             preencha os valores nutricionais por 100 g com sua melhor estimativa.
+            Informe também posX e posY: a posição aproximada do centro do alimento na imagem,
+            em uma escala de 0 a 1000 (0,0 = canto superior esquerdo; 1000,1000 = canto inferior direito).
             Descrições em português. Se a imagem não contiver comida, retorne a lista vazia.
             """;
 
@@ -85,8 +87,10 @@ public class MealAnalysisService(
             throw new InvalidOperationException("Nenhum alimento identificado na imagem. Envie uma foto nítida do prato.");
 
         var foodsById = catalog.ToDictionary(f => f.Id);
-        var items = parsed.Items
+        var filtered = parsed.Items
             .Where(i => i.QuantityG is > 0 and <= 2000)
+            .ToList();
+        var items = filtered
             .Select(i =>
             {
                 // Catálogo é a fonte oficial de macros quando há correspondência.
@@ -116,7 +120,7 @@ public class MealAnalysisService(
             : JsonSerializer.Deserialize<MealJobInput>(job.InputJson, JsonOptions);
         if (input is { Illustrated: true })
             analysis.IllustratedMediaKey =
-                await GenerateIllustratedAsync(job, imageBytes, mediaType, items, analysis, ct);
+                await GenerateIllustratedAsync(job, imageBytes, mediaType, items, filtered, analysis, ct);
 
         db.MealPhotoAnalyses.Add(analysis);
         await db.SaveChangesAsync(ct);
@@ -124,33 +128,68 @@ public class MealAnalysisService(
     }
 
     /// <summary>
-    /// Gera a versão ilustrada (IA anota itens e macros na própria foto).
-    /// Melhor esforço: sem cota/modelo/chave, retorna null e a análise
-    /// padrão segue valendo — nunca falha o job por causa da ilustração.
+    /// Gera a versão ilustrada (anotações de itens e macros na própria foto).
+    /// Primeiro tenta o modelo de imagem do Gemini (requer billing); sem
+    /// cota/chave ou em falha, cai no renderizador local (SkiaSharp) usando as
+    /// posições que o modelo de visão devolveu — nunca falha o job por isso.
     /// </summary>
     private async Task<string?> GenerateIllustratedAsync(
         AnalysisJob job, byte[] imageBytes, string mediaType,
-        IReadOnlyList<MealItemDto> items, MealPhotoAnalysis analysis, CancellationToken ct)
+        IReadOnlyList<MealItemDto> items, IReadOnlyList<LlmMealItem> parsedItems,
+        MealPhotoAnalysis analysis, CancellationToken ct)
     {
-        var lines = string.Join("\n", items.Select(i =>
-            $"- {i.Description}: {Math.Round(i.QuantityG)} g · {Math.Round(i.KcalPer100g * i.QuantityG / 100m)} kcal"));
+        var labels = items.Select(i =>
+            $"{i.Description} — {Math.Round(i.QuantityG)} g · {Math.Round(i.KcalPer100g * i.QuantityG / 100m)} kcal").ToList();
+        var totals =
+            $"{Math.Round(analysis.TotalKcal)} kcal · P {Math.Round(analysis.TotalProteinG)} g · C {Math.Round(analysis.TotalCarbsG)} g · G {Math.Round(analysis.TotalFatG)} g";
+
+        var generated = await TryGeminiImageAsync(job, labels, totals, imageBytes, mediaType, ct);
+        if (generated is null)
+        {
+            // Fallback local e gratuito: desenha as etiquetas nas posições
+            // (posX/posY, escala 0-1000) apontadas pelo modelo de visão.
+            var annotations = items
+                .Select((item, index) => new MealAnnotation(
+                    labels[index],
+                    parsedItems[index].PosX is > 0 and <= 1000 ? parsedItems[index].PosX : null,
+                    parsedItems[index].PosY is > 0 and <= 1000 ? parsedItems[index].PosY : null))
+                .ToList();
+            try
+            {
+                generated = new GeneratedImage(
+                    MealImageAnnotator.Render(imageBytes, annotations, totals), "image/jpeg", 0, 0);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Renderização local da análise ilustrada falhou para o job {JobId}.", job.Id);
+                return null;
+            }
+        }
+
+        var extension = generated.MediaType == "image/jpeg" ? ".jpg" : ".png";
+        var key = $"meals/{job.UserId}/{Guid.NewGuid():N}-ilustrada{extension}";
+        using var stream = new MemoryStream(generated.Bytes);
+        await storage.UploadAsync(key, stream, generated.MediaType);
+        return key;
+    }
+
+    private async Task<GeneratedImage?> TryGeminiImageAsync(
+        AnalysisJob job, IReadOnlyList<string> labels, string totals,
+        byte[] imageBytes, string mediaType, CancellationToken ct)
+    {
+        var lines = string.Join("\n", labels.Select(l => $"- {l}"));
         var instruction = $"""
             Edite esta foto de refeição adicionando anotações visuais elegantes e legíveis por cima da imagem,
             como em um infográfico de nutrição. Mantenha a foto original como fundo, sem alterar a comida.
-            Para cada item abaixo, desenhe uma etiqueta discreta apontando para o alimento correspondente,
-            com o nome, a porção e as calorias:
+            Para cada item abaixo, desenhe uma etiqueta discreta apontando para o alimento correspondente:
             {lines}
-            Adicione também um cartão de resumo em um canto com os totais:
-            {Math.Round(analysis.TotalKcal)} kcal · Proteína {Math.Round(analysis.TotalProteinG)} g · Carboidrato {Math.Round(analysis.TotalCarbsG)} g · Gordura {Math.Round(analysis.TotalFatG)} g
+            Adicione também um cartão de resumo em um canto com os totais: {totals}
             Todos os textos em português.
             """;
 
         var generated = await imageClient.EditImageAsync(imageBytes, mediaType, instruction, ct);
         if (generated is null)
-        {
-            logger.LogWarning("Análise ilustrada indisponível para o job {JobId}; mantida a análise padrão.", job.Id);
             return null;
-        }
 
         db.AiUsageLogs.Add(new AiUsageLog
         {
@@ -160,12 +199,7 @@ public class MealAnalysisService(
             InputTokens = generated.InputTokens,
             OutputTokens = generated.OutputTokens,
         });
-
-        var extension = generated.MediaType == "image/jpeg" ? ".jpg" : ".png";
-        var key = $"meals/{job.UserId}/{Guid.NewGuid():N}-ilustrada{extension}";
-        using var stream = new MemoryStream(generated.Bytes);
-        await storage.UploadAsync(key, stream, generated.MediaType);
-        return key;
+        return generated;
     }
 
     public static void ApplyTotals(MealPhotoAnalysis analysis, IReadOnlyList<MealItemDto> items)
@@ -201,9 +235,11 @@ public class MealAnalysisService(
                       "kcalPer100g": { "type": "number" },
                       "proteinPer100g": { "type": "number" },
                       "carbsPer100g": { "type": "number" },
-                      "fatPer100g": { "type": "number" }
+                      "fatPer100g": { "type": "number" },
+                      "posX": { "type": "integer", "description": "Centro do alimento na imagem, eixo X em escala 0-1000" },
+                      "posY": { "type": "integer", "description": "Centro do alimento na imagem, eixo Y em escala 0-1000" }
                     },
-                    "required": ["description", "foodItemId", "quantityG", "kcalPer100g", "proteinPer100g", "carbsPer100g", "fatPer100g"],
+                    "required": ["description", "foodItemId", "quantityG", "kcalPer100g", "proteinPer100g", "carbsPer100g", "fatPer100g", "posX", "posY"],
                     "additionalProperties": false
                   }
                 }
@@ -218,5 +254,6 @@ public class MealAnalysisService(
     private sealed record LlmMealAnalysis(List<LlmMealItem> Items);
     private sealed record LlmMealItem(
         string Description, int FoodItemId, decimal QuantityG,
-        decimal KcalPer100g, decimal ProteinPer100g, decimal CarbsPer100g, decimal FatPer100g);
+        decimal KcalPer100g, decimal ProteinPer100g, decimal CarbsPer100g, decimal FatPer100g,
+        int? PosX = null, int? PosY = null);
 }

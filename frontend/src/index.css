@@ -71,6 +71,13 @@
       dark:border-white/10 dark:bg-white/[0.04] dark:text-white dark:placeholder:text-slate-500;
   }
 
+  /* O popup de <option> herda o fundo do select; com o fundo translúcido do
+     dark mode, o Windows pinta as opções brancas sobre branco (lista "vazia").
+     Opções precisam de cores sólidas. */
+  .field option {
+    @apply bg-white text-slate-900 dark:bg-slate-800 dark:text-white;
+  }
+
   .page-title {
     @apply font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white;
   }

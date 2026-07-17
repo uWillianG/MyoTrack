@@ -27,6 +27,7 @@ public class MealAnalysesController(
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly string[] AllowedContentTypes = ["image/jpeg", "image/png", "image/webp"];
     private const long MaxFileBytes = 10 * 1024 * 1024;
+    private static readonly TimeSpan PhotoUrlExpiry = TimeSpan.FromHours(1);
 
     /// <summary>Sobe a foto e enfileira a análise em uma única chamada.</summary>
     [HttpPost]
@@ -95,7 +96,7 @@ public class MealAnalysesController(
     {
         var analysis = await db.MealPhotoAnalyses.AsNoTracking()
             .SingleOrDefaultAsync(a => a.Id == id && a.UserId == CurrentUserId);
-        return analysis is null ? NotFound() : Ok(ToDto(analysis));
+        return analysis is null ? NotFound() : Ok(await ToDtoAsync(analysis));
     }
 
     /// <summary>Ajuste manual pelo usuário — quantidades/itens editados viram a estimativa oficial.</summary>
@@ -132,18 +133,28 @@ public class MealAnalysesController(
         analysis.UserAdjusted = true;
         MealAnalysisService.ApplyTotals(analysis, dtos);
         await db.SaveChangesAsync();
-        return Ok(ToDto(analysis));
+        return Ok(await ToDtoAsync(analysis));
     }
 
-    private static object ToDto(MealPhotoAnalysis analysis) => new
+    private async Task<object> ToDtoAsync(MealPhotoAnalysis analysis)
     {
-        analysis.Id,
-        analysis.CreatedAt,
-        analysis.UserAdjusted,
-        analysis.TotalKcal,
-        analysis.TotalProteinG,
-        analysis.TotalCarbsG,
-        analysis.TotalFatG,
-        Items = JsonSerializer.Deserialize<List<MealItemDto>>(analysis.ItemsJson, JsonOptions),
-    };
+        // Foto expirada pela política de retenção não tem mais arquivo no storage.
+        string? photoUrl = null;
+        if (analysis.MediaExpiredAt is null)
+            photoUrl = await storage.GetPresignedDownloadUrlAsync(analysis.MediaKey, PhotoUrlExpiry);
+
+        return new
+        {
+            analysis.Id,
+            analysis.CreatedAt,
+            analysis.UserAdjusted,
+            analysis.TotalKcal,
+            analysis.TotalProteinG,
+            analysis.TotalCarbsG,
+            analysis.TotalFatG,
+            PhotoUrl = photoUrl,
+            MediaExpired = analysis.MediaExpiredAt is not null,
+            Items = JsonSerializer.Deserialize<List<MealItemDto>>(analysis.ItemsJson, JsonOptions),
+        };
+    }
 }

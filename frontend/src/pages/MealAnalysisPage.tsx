@@ -19,6 +19,8 @@ interface MealAnalysis {
   totalProteinG: number
   totalCarbsG: number
   totalFatG: number
+  photoUrl?: string | null
+  mediaExpired?: boolean
   items: MealItem[]
 }
 
@@ -190,21 +192,43 @@ export default function MealAnalysisPage() {
 
       {analysis && totals && (
         <>
-          <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              ['Calorias', totals.kcal, 'kcal'],
-              ['Proteína', totals.protein, 'g'],
-              ['Carboidrato', totals.carbs, 'g'],
-              ['Gordura', totals.fat, 'g'],
-            ].map(([label, value, unit]) => (
-              <div key={label as string} className="card p-4">
-                <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
-                <p className="text-xl font-bold text-slate-900 dark:text-white">
-                  {Math.round(value as number)}
-                  <span className="text-sm font-normal text-slate-400"> {unit}</span>
-                </p>
+          <section className="flex flex-col sm:flex-row gap-3">
+            {analysis.photoUrl && (
+              <a
+                href={analysis.photoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="card overflow-hidden sm:w-56 shrink-0"
+                title="Abrir foto em tamanho original"
+              >
+                <img
+                  src={analysis.photoUrl}
+                  alt="Foto da refeição analisada"
+                  className="w-full h-40 sm:h-full object-cover"
+                />
+              </a>
+            )}
+            {analysis.mediaExpired && (
+              <div className="card sm:w-56 shrink-0 flex items-center justify-center p-4 text-xs text-slate-400 text-center">
+                Foto removida pela política de retenção de mídia.
               </div>
-            ))}
+            )}
+            <div className="grid grid-cols-2 gap-3 flex-1 content-start">
+              {[
+                ['Calorias', totals.kcal, 'kcal'],
+                ['Proteína', totals.protein, 'g'],
+                ['Carboidrato', totals.carbs, 'g'],
+                ['Gordura', totals.fat, 'g'],
+              ].map(([label, value, unit]) => (
+                <div key={label as string} className="card p-4">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+                  <p className="text-xl font-bold text-slate-900 dark:text-white">
+                    {Math.round(value as number)}
+                    <span className="text-sm font-normal text-slate-400"> {unit}</span>
+                  </p>
+                </div>
+              ))}
+            </div>
           </section>
 
           <section className="card overflow-hidden">

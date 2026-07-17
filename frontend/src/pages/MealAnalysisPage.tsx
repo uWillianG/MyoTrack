@@ -246,7 +246,7 @@ export default function MealAnalysisPage() {
             <div
               className={
                 photoOrientation === 'portrait'
-                  ? 'grid grid-cols-2 gap-3 flex-1 content-start'
+                  ? 'grid grid-cols-1 gap-3 flex-1 content-start'
                   : 'grid grid-cols-2 sm:grid-cols-4 gap-3'
               }
             >

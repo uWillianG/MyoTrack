@@ -66,6 +66,17 @@ Erro de build `MSB3027/MSB3021 ... O arquivo é bloqueado por: "MyoTrack.Api"`: 
 Get-Process MyoTrack.Api, MyoTrack.Worker -ErrorAction SilentlyContinue | Stop-Process -Force
 ```
 
+Como o `Directory.Build.props` desativa o apphost `.exe` em Debug, a API e o Worker normalmente rodam como `dotnet.exe` — se o comando acima não achar nada, procure pelo comando completo:
+
+```powershell
+Get-CimInstance Win32_Process -Filter "Name='dotnet.exe'" |
+  Where-Object CommandLine -match 'MyoTrack' | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+```
+
+Um `MyoTrack.Api.exe`/`MyoTrack.Worker.exe` antigo pode sobrar no `bin` (de builds anteriores ao props) e voltar a ser executado; se aparecer no erro de lock, apague o `.exe` do `bin` além de parar o processo.
+
+Iniciar API e Worker ao mesmo tempo também pode falhar com `CS2012`/arquivo em uso (os dois `dotnet run` compilam os mesmos projetos em paralelo) — espere a API imprimir "Now listening" antes de subir o Worker, ou compile antes (`dotnet build`) e rode com `dotnet run --no-build`.
+
 Erro `Uma política de Controle de Aplicativo bloqueou este arquivo` (Smart App Control) ao rodar ou testar: o SAC avalia cada binário novo por hash e às vezes bloqueia uma DLL recém-compilada. O `backend/Directory.Build.props` já desativa o apphost `.exe` e o build determinístico em Debug/Windows — se o bloqueio acontecer, um rebuild completo gera hashes novos e destrava:
 
 ```powershell

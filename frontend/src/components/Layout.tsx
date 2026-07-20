@@ -4,6 +4,7 @@ import { clearTokens, getRoles } from '../lib/api'
 const links = [
   { to: '/', label: 'Progresso' },
   { to: '/treino', label: 'Treino' },
+  { to: '/treinar', label: 'Treinar' },
   { to: '/dieta', label: 'Dieta' },
   { to: '/registrar', label: 'Registrar' },
   { to: '/refeicoes', label: 'Refeições' },

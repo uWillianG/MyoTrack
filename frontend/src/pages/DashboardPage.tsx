@@ -17,6 +17,33 @@ interface LoggedExercise { exerciseId: number; name: string; sessions: number }
 interface ProgressPoint { date: string; maxLoadKg: number; volumeKg: number }
 interface VolumePoint { weekStart: string; volumeKg: number }
 interface WeightPoint { date: string; weightKg: number }
+interface Suggestion {
+  exerciseId: number
+  exerciseName: string
+  dayLabel: string
+  repsMax: number
+  action: 'Start' | 'Increase' | 'ProgressReps' | 'Consolidate'
+  nextLoadKg: number | null
+  incrementKg: number
+  lastSets: { reps: number; loadKg: number }[]
+}
+interface ExerciseRecord {
+  exerciseId: number
+  name: string
+  maxLoadKg: number
+  maxLoadDate: string
+  bestE1RmKg: number | null
+  e1RmReps: number | null
+  e1RmLoadKg: number | null
+  e1RmDate: string | null
+}
+
+/** Recorde batido nos últimos 14 dias ganha destaque de "novo". */
+function isRecent(iso: string | null) {
+  if (!iso) return false
+  const [y, m, d] = iso.split('-').map(Number)
+  return Date.now() - new Date(y, m - 1, d).getTime() < 14 * 24 * 60 * 60 * 1000
+}
 
 const axisStyle = { fontSize: 12, fill: 'var(--viz-axis)' }
 
@@ -45,6 +72,8 @@ export default function DashboardPage() {
   const [progress, setProgress] = useState<ProgressPoint[]>([])
   const [volume, setVolume] = useState<VolumePoint[]>([])
   const [weight, setWeight] = useState<WeightPoint[]>([])
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [records, setRecords] = useState<ExerciseRecord[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -52,10 +81,14 @@ export default function DashboardPage() {
       api('/api/progress/exercises').then((r) => (r.ok ? r.json() : [])),
       api('/api/progress/volume').then((r) => (r.ok ? r.json() : [])),
       api('/api/progress/weight').then((r) => (r.ok ? r.json() : [])),
-    ]).then(([exs, vol, wgt]) => {
+      api('/api/progress/suggestions').then((r) => (r.ok ? r.json() : [])),
+      api('/api/progress/records').then((r) => (r.ok ? r.json() : [])),
+    ]).then(([exs, vol, wgt, sug, recs]) => {
       setExercises(exs)
       setVolume(vol)
       setWeight(wgt)
+      setSuggestions(sug)
+      setRecords(recs)
       if (exs.length > 0) setSelectedExercise(exs[0].exerciseId)
       setLoading(false)
     })
@@ -84,6 +117,36 @@ export default function DashboardPage() {
             para acompanhar sua evolução.
           </p>
         </div>
+      )}
+
+      {suggestions.some((s) => s.action === 'Increase') && (
+        <section className="card overflow-hidden">
+          <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg flex justify-between items-center">
+            <span>Sugestões de progressão</span>
+            <Link to="/treinar" className="text-sm font-normal text-emerald-600 hover:underline">
+              Treinar agora
+            </Link>
+          </h2>
+          <ul className="divide-y divide-slate-100 dark:divide-white/[0.06] text-sm">
+            {suggestions
+              .filter((s) => s.action === 'Increase')
+              .map((s) => {
+                const lastLoad =
+                  s.lastSets.length > 0 ? Math.max(...s.lastSets.map((x) => x.loadKg)) : null
+                return (
+                  <li key={`${s.dayLabel}-${s.exerciseId}`} className="px-5 py-2.5 flex justify-between items-center gap-3">
+                    <span className="text-slate-700 dark:text-slate-200">
+                      {s.exerciseName}
+                      <span className="ml-2 text-xs text-slate-400">{s.dayLabel}</span>
+                    </span>
+                    <span className="text-xs text-emerald-700 dark:text-emerald-400 whitespace-nowrap">
+                      {lastLoad} kg → <strong>{s.nextLoadKg} kg</strong> (fechou as {s.repsMax} reps)
+                    </span>
+                  </li>
+                )
+              })}
+          </ul>
+        </section>
       )}
 
       {exercises.length > 0 && (
@@ -155,6 +218,57 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </div>
         </ChartCard>
+      )}
+
+      {records.length > 0 && (
+        <section className="card overflow-hidden">
+          <h2 className="px-5 py-3 font-semibold text-slate-900 dark:text-white card-header-bg">
+            Recordes pessoais
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-slate-500 dark:text-slate-400 text-xs">
+                <tr className="border-b border-slate-100 dark:border-white/[0.06]">
+                  <th className="px-5 py-2 font-medium">Exercício</th>
+                  <th className="px-3 py-2 font-medium text-right">Carga máx.</th>
+                  <th className="px-3 py-2 font-medium text-right">1RM estimado</th>
+                  <th className="px-5 py-2 font-medium text-right">Quando</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-700 dark:text-slate-200">
+                {records.slice(0, 10).map((r) => {
+                  const date = r.e1RmDate ?? r.maxLoadDate
+                  return (
+                    <tr key={r.exerciseId} className="border-b border-slate-100 dark:border-white/[0.06] last:border-0">
+                      <td className="px-5 py-2">
+                        {r.name}
+                        {isRecent(date) && (
+                          <span className="ml-2 text-xs text-emerald-600 bg-emerald-500/10 rounded-full px-2 py-0.5">
+                            novo
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-right whitespace-nowrap">{r.maxLoadKg} kg</td>
+                      <td className="px-3 py-2 text-right whitespace-nowrap">
+                        {r.bestE1RmKg != null ? (
+                          <span title={`${r.e1RmReps} × ${r.e1RmLoadKg} kg (Epley)`}>{r.bestE1RmKg} kg</span>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-2 text-right text-xs text-slate-400 whitespace-nowrap">
+                        {formatDate(date)}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="px-5 py-2 text-xs text-slate-400">
+            1RM estimado pela fórmula de Epley sobre séries de até 12 repetições — referência, não convite ao teste real.
+          </p>
+        </section>
       )}
     </div>
   )

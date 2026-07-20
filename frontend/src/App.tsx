@@ -6,6 +6,7 @@ import OnboardingPage from './pages/OnboardingPage'
 import WorkoutPlanPage from './pages/WorkoutPlanPage'
 import DietPlanPage from './pages/DietPlanPage'
 import LogSessionPage from './pages/LogSessionPage'
+import WorkoutModePage from './pages/WorkoutModePage'
 import MealAnalysisPage from './pages/MealAnalysisPage'
 import DiaryPage from './pages/DiaryPage'
 import VideoAnalysisPage from './pages/VideoAnalysisPage'
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/perfil" element={<OnboardingPage />} />
           <Route path="/treino" element={<WorkoutPlanPage />} />
+          <Route path="/treinar" element={<WorkoutModePage />} />
           <Route path="/dieta" element={<DietPlanPage />} />
           <Route path="/registrar" element={<LogSessionPage />} />
           <Route path="/refeicoes" element={<MealAnalysisPage />} />

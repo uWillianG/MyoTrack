@@ -23,6 +23,12 @@ public class MealPhotoAnalysis
     public bool UserAdjusted { get; set; }
 
     /// <summary>
+    /// True quando o usuário tirou esta análise do diário alimentar (ex.: foto
+    /// repetida ou prato que não foi consumido) — ela deixa de somar no dia.
+    /// </summary>
+    public bool ExcludedFromDiary { get; set; }
+
+    /// <summary>
     /// Versão "ilustrada" da foto (IA anota itens e macros na própria imagem),
     /// gerada quando o usuário escolhe esse modo. Null = análise padrão ou
     /// geração indisponível/falhou (a análise continua válida sem ela).

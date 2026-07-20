@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { api, apiUpload, watchJob } from '../lib/api'
 
 interface MealItem {
@@ -59,6 +60,8 @@ export default function MealAnalysisPage() {
   const [error, setError] = useState<string | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
 
+  const [searchParams] = useSearchParams()
+
   const loadHistory = useCallback(async () => {
     const response = await api('/api/meal-analyses')
     if (response.ok) setHistory(await response.json())
@@ -68,13 +71,19 @@ export default function MealAnalysisPage() {
     loadHistory()
   }, [loadHistory])
 
-  async function open(id: string) {
+  const open = useCallback(async (id: string) => {
     setError(null)
     setDraft(null)
     setPhotoOrientation(null)
     const response = await api(`/api/meal-analyses/${id}`)
     if (response.ok) setAnalysis(await response.json())
-  }
+  }, [])
+
+  // Link vindo do diário (/refeicoes?analise=<id>) abre a análise direto.
+  useEffect(() => {
+    const id = searchParams.get('analise')
+    if (id) open(id)
+  }, [searchParams, open])
 
   async function upload(file: File) {
     setError(null)

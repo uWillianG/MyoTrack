@@ -81,7 +81,9 @@ public enum AnalysisJobType
     WorkoutGeneration = 1,
     DietGeneration = 2,
     MealPhoto = 3,
-    ExerciseVideo = 4
+    ExerciseVideo = 4,
+    CoachChat = 5,
+    WeeklyReport = 6
 }
 
 public enum JobStatus

@@ -45,9 +45,12 @@ builder.Services.AddScoped<WorkoutGenerationService>();
 builder.Services.AddScoped<DietGenerationService>();
 builder.Services.AddScoped<MealAnalysisService>();
 builder.Services.AddScoped<VideoAnalysisService>();
+builder.Services.AddScoped<CoachChatService>();
+builder.Services.AddScoped<WeeklyReportService>();
 
 builder.Services.AddHostedService<JobPollerService>();
 builder.Services.AddHostedService<MediaRetentionService>();
+builder.Services.AddHostedService<WeeklyReportSchedulerService>();
 
 var host = builder.Build();
 host.Run();

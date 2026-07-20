@@ -119,6 +119,18 @@ public class JobPollerService(
                     .AnalyzeAsync(job, ct);
                 return $$"""{"videoAnalysisId":"{{analysisId}}"}""";
             }
+            case AnalysisJobType.CoachChat:
+            {
+                var messageId = await services.GetRequiredService<CoachChatService>()
+                    .ReplyAsync(job, ct);
+                return $$"""{"coachMessageId":"{{messageId}}"}""";
+            }
+            case AnalysisJobType.WeeklyReport:
+            {
+                var reportId = await services.GetRequiredService<WeeklyReportService>()
+                    .GenerateAsync(job, ct);
+                return $$"""{"weeklyReportId":"{{reportId}}"}""";
+            }
             default:
                 throw new InvalidOperationException($"Nenhum handler registrado para o tipo de job '{job.Type}'.");
         }

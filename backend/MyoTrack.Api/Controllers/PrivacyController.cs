@@ -52,6 +52,8 @@ public class PrivacyController(
             ExerciseVideoAnalyses = await db.ExerciseVideoAnalyses.AsNoTracking().Where(a => a.UserId == userId).ToListAsync(),
             AnalysisJobs = await db.AnalysisJobs.AsNoTracking().Where(j => j.UserId == userId).ToListAsync(),
             AiUsage = await db.AiUsageLogs.AsNoTracking().Where(l => l.UserId == userId).ToListAsync(),
+            CoachMessages = await db.CoachMessages.AsNoTracking().Where(m => m.UserId == userId).ToListAsync(),
+            WeeklyReports = await db.WeeklyReports.AsNoTracking().Where(r => r.UserId == userId).ToListAsync(),
             Subscription = await db.UserSubscriptions.AsNoTracking().SingleOrDefaultAsync(s => s.UserId == userId),
         };
 
@@ -97,6 +99,8 @@ public class PrivacyController(
             await db.ExerciseVideoAnalyses.Where(a => a.UserId == userId).ExecuteDeleteAsync();
             await db.AnalysisJobs.Where(j => j.UserId == userId).ExecuteDeleteAsync();
             await db.AiUsageLogs.Where(l => l.UserId == userId).ExecuteDeleteAsync();
+            await db.CoachMessages.Where(m => m.UserId == userId).ExecuteDeleteAsync();
+            await db.WeeklyReports.Where(r => r.UserId == userId).ExecuteDeleteAsync();
             await db.UserSubscriptions.Where(s => s.UserId == userId).ExecuteDeleteAsync();
             await db.ConsentRecords.Where(c => c.UserId == userId).ExecuteDeleteAsync();
             await db.RefreshTokens.Where(t => t.UserId == userId).ExecuteDeleteAsync();

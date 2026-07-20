@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts'
 import { api } from '../lib/api'
+import WeeklyReportCard from '../components/WeeklyReportCard'
 
 interface LoggedExercise { exerciseId: number; name: string; sessions: number }
 interface ProgressPoint { date: string; maxLoadKg: number; volumeKg: number }
@@ -108,6 +109,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <h1 className="page-title">Seu progresso</h1>
+
+      <WeeklyReportCard />
 
       {isEmpty && (
         <div className="card p-8 text-center text-slate-500 dark:text-slate-400">

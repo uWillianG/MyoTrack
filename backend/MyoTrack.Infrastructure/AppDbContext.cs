@@ -32,6 +32,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<AiUsageLog> AiUsageLogs => Set<AiUsageLog>();
     public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
     public DbSet<StripeEventLog> StripeEventLogs => Set<StripeEventLog>();
+    public DbSet<CoachMessage> CoachMessages => Set<CoachMessage>();
+    public DbSet<WeeklyReport> WeeklyReports => Set<WeeklyReport>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -136,6 +138,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasIndex(j => new { j.Status, j.CreatedAt });
             e.Property(j => j.InputJson).HasColumnType("jsonb");
             e.Property(j => j.ResultJson).HasColumnType("jsonb");
+        });
+
+        builder.Entity<CoachMessage>(e =>
+        {
+            e.HasIndex(m => new { m.UserId, m.CreatedAt });
+            e.Property(m => m.Content).HasMaxLength(4000);
+        });
+
+        builder.Entity<WeeklyReport>(e =>
+        {
+            e.HasIndex(r => new { r.UserId, r.WeekStart }).IsUnique();
+            e.Property(r => r.MetricsJson).HasColumnType("jsonb");
+            e.Property(r => r.NarrativeJson).HasColumnType("jsonb");
         });
     }
 }

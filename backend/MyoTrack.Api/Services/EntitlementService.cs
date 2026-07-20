@@ -4,7 +4,11 @@ using MyoTrack.Infrastructure;
 
 namespace MyoTrack.Api.Services;
 
-public record Entitlements(SubscriptionPlanType Plan, int MaxMealAnalysesPerDay, int MaxVideoAnalysesPerDay);
+public record Entitlements(
+    SubscriptionPlanType Plan,
+    int MaxMealAnalysesPerDay,
+    int MaxVideoAnalysesPerDay,
+    int MaxCoachMessagesPerDay);
 
 /// <summary>
 /// Resolve o plano do usuário (Free/Pro) e os limites de uso de IA correspondentes.
@@ -20,9 +24,11 @@ public class EntitlementService(AppDbContext db, IConfiguration configuration)
         return isPro
             ? new Entitlements(SubscriptionPlanType.Pro,
                 configuration.GetValue("Limits:Pro:MaxMealAnalysesPerDay", 50),
-                configuration.GetValue("Limits:Pro:MaxVideoAnalysesPerDay", 20))
+                configuration.GetValue("Limits:Pro:MaxVideoAnalysesPerDay", 20),
+                configuration.GetValue("Limits:Pro:MaxCoachMessagesPerDay", 50))
             : new Entitlements(SubscriptionPlanType.Free,
                 configuration.GetValue("Limits:Free:MaxMealAnalysesPerDay", 10),
-                configuration.GetValue("Limits:Free:MaxVideoAnalysesPerDay", 5));
+                configuration.GetValue("Limits:Free:MaxVideoAnalysesPerDay", 5),
+                configuration.GetValue("Limits:Free:MaxCoachMessagesPerDay", 10));
     }
 }

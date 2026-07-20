@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { clearTokens, getRoles } from '../lib/api'
+import CoachChat from './CoachChat'
 
 const links = [
   { to: '/', label: 'Progresso' },
@@ -67,6 +68,7 @@ export default function Layout() {
       <main className="mx-auto max-w-5xl p-4 sm:p-6">
         <Outlet />
       </main>
+      <CoachChat />
     </div>
   )
 }

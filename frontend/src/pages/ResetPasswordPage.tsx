@@ -64,6 +64,7 @@ export default function ResetPasswordPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={8}
+          autoComplete="new-password"
           autoFocus
         />
 
@@ -77,6 +78,7 @@ export default function ResetPasswordPage() {
           onChange={(e) => setConfirmation(e.target.value)}
           required
           minLength={8}
+          autoComplete="new-password"
         />
 
         {error && <p className="text-sm text-red-600">{error}</p>}

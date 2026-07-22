@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmation, setConfirmation] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -58,6 +59,10 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (mode === 'register' && password !== confirmation) {
+      setError('As senhas não conferem.')
+      return
+    }
     setError(null)
     setLoading(true)
     try {
@@ -119,6 +124,7 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          autoComplete="username"
         />
         <input
           className="w-full field px-3 py-2 text-slate-900 dark:text-white"
@@ -128,9 +134,24 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={8}
+          autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
         />
 
-        {mode === 'register' && <PasswordRules password={password} />}
+        {mode === 'register' && (
+          <>
+            <PasswordRules password={password} />
+            <input
+              className="w-full field px-3 py-2 text-slate-900 dark:text-white"
+              type="password"
+              placeholder="Repita a senha"
+              value={confirmation}
+              onChange={(e) => setConfirmation(e.target.value)}
+              required
+              minLength={8}
+              autoComplete="new-password"
+            />
+          </>
+        )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
@@ -156,6 +177,7 @@ export default function LoginPage() {
         type="button"
         onClick={() => {
           setMode(mode === 'login' ? 'register' : 'login')
+          setConfirmation('')
           setError(null)
         }}
         className="mt-4 w-full text-sm text-emerald-700 dark:text-emerald-400 hover:underline"

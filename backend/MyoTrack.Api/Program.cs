@@ -1,6 +1,9 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -25,10 +28,30 @@ builder.Services
         options.User.RequireUniqueEmail = true;
     })
     .AddRoles<IdentityRole<Guid>>()
-    .AddEntityFrameworkStores<AppDbContext>();
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddErrorDescriber<PortugueseIdentityErrorDescriber>()
+    .AddDefaultTokenProviders(); // tokens de redefinição de senha
+
+// Validade do link de redefinição — o texto do e-mail promete o mesmo prazo.
+builder.Services.Configure<DataProtectionTokenProviderOptions>(o => o.TokenLifespan = TimeSpan.FromHours(24));
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddScoped<TokenService>();
+
+builder.Services.Configure<AppOptions>(builder.Configuration.GetSection(AppOptions.SectionName));
+
+// E-mail transacional (redefinição de senha). Sem credenciais SMTP, o remetente
+// apenas registra a mensagem no log — dá para testar o fluxo sem configurar nada.
+builder.Services.Configure<MyoTrack.Infrastructure.Email.EmailOptions>(
+    builder.Configuration.GetSection(MyoTrack.Infrastructure.Email.EmailOptions.SectionName));
+builder.Services.AddScoped<MyoTrack.Infrastructure.Email.IEmailSender,
+    MyoTrack.Infrastructure.Email.SmtpEmailSender>();
+
+// Login social com Google (desligado sem ClientId/ClientSecret).
+builder.Services.Configure<GoogleOAuthOptions>(
+    builder.Configuration.GetSection(GoogleOAuthOptions.SectionName));
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<GoogleOAuthService>();
 
 builder.Services.Configure<MyoTrack.Api.Controllers.BillingOptions>(
     builder.Configuration.GetSection(MyoTrack.Api.Controllers.BillingOptions.SectionName));
@@ -66,6 +89,29 @@ builder.Services
         };
     });
 builder.Services.AddAuthorization();
+
+// Disparar e-mail é o endpoint mais fácil de abusar (spam para terceiros): limita
+// por IP de origem. Atrás do Caddy o IP real vem no X-Forwarded-For (abaixo).
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy(RateLimitPolicies.AuthEmail, http =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            http.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(15),
+            }));
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // O proxy é o Caddy do compose; o IP dele muda a cada recriação do container.
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
@@ -121,7 +167,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseForwardedHeaders();
 app.UseCors(CorsPolicy);
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 

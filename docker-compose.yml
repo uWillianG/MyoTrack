@@ -37,6 +37,15 @@ services:
       Billing__WebhookSecret: ${STRIPE_WEBHOOK_SECRET:-}
       Billing__ProPriceId: ${STRIPE_PRO_PRICE_ID:-}
       Billing__PublicBaseUrl: ${FRONTEND_ORIGIN:-http://localhost}
+      # Base dos links enviados por e-mail e do redirect do login com Google.
+      App__PublicBaseUrl: ${FRONTEND_ORIGIN:-http://localhost}
+      Email__Host: ${EMAIL_HOST:-smtp.gmail.com}
+      Email__Port: ${EMAIL_PORT:-587}
+      Email__User: ${EMAIL_USER:-}
+      Email__Password: ${EMAIL_PASSWORD:-}
+      Email__From: ${EMAIL_FROM:-}
+      Auth__Google__ClientId: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      Auth__Google__ClientSecret: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
     depends_on:
       postgres:
         condition: service_healthy

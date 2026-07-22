@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<ConsentRecord> ConsentRecords => Set<ConsentRecord>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<LoginCode> LoginCodes => Set<LoginCode>();
 
     public DbSet<Exercise> Exercises => Set<Exercise>();
     public DbSet<WorkoutPlan> WorkoutPlans => Set<WorkoutPlan>();
@@ -53,6 +54,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             e.HasIndex(t => t.TokenHash).IsUnique();
             e.HasIndex(t => t.UserId);
+        });
+
+        builder.Entity<LoginCode>(e =>
+        {
+            e.HasIndex(c => c.CodeHash).IsUnique();
+            e.Property(c => c.CodeHash).HasMaxLength(64);
         });
 
         builder.Entity<Exercise>(e =>

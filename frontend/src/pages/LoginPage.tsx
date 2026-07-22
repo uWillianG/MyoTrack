@@ -1,15 +1,59 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import AuthLayout from '../components/AuthLayout'
+import GoogleButton from '../components/GoogleButton'
 import { storeTokens, type AuthResponse } from '../lib/api'
+
+/** Mensagens dos erros que o callback do OAuth devolve na querystring. */
+const oauthErrors: Record<string, string> = {
+  'google-indisponivel': 'Login com Google indisponível no momento.',
+  'google-cancelado': 'Login com Google cancelado.',
+  'google-state': 'Falha na verificação de segurança do login. Tente novamente.',
+  'google-email': 'Sua conta Google não tem um e-mail verificado.',
+  'google-falhou': 'Não foi possível entrar com o Google. Tente novamente.',
+}
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [params, setParams] = useSearchParams()
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  const oauthCode = params.get('oauth')
+  const oauthError = params.get('erro')
+  const passwordReset = params.get('senha') === 'redefinida'
+
+  // Volta do Google: troca o código de uso único pelo par de tokens.
+  useEffect(() => {
+    if (oauthError) {
+      setError(oauthErrors[oauthError] ?? 'Não foi possível entrar. Tente novamente.')
+      setParams({}, { replace: true })
+      return
+    }
+    if (!oauthCode) return
+
+    setLoading(true)
+    fetch('/api/auth/google/exchange', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: oauthCode }),
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          setError('Sessão do Google expirada. Tente entrar novamente.')
+          setParams({}, { replace: true })
+          return
+        }
+        storeTokens((await response.json()) as AuthResponse)
+        navigate('/', { replace: true })
+      })
+      .catch(() => setError('Não foi possível concluir o login com o Google.'))
+      .finally(() => setLoading(false))
+  }, [oauthCode, oauthError, navigate, setParams])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -37,26 +81,28 @@ export default function LoginPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm card p-8 space-y-4"
-      >
-        <div className="space-y-3 pb-2 text-center">
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-emerald-400 to-teal-600 text-xl font-bold text-white shadow-lg shadow-emerald-600/30">
-            M
-          </span>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Myo<span className="text-emerald-500">Track</span>
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            {mode === 'login'
-              ? 'Seu personal trainer e nutricionista digital'
-              : 'Crie sua conta e comece a evoluir'}
-          </p>
-        </div>
+  if (oauthCode && !error)
+    return (
+      <AuthLayout subtitle="Entrando com o Google…">
+        <p className="text-center text-sm text-slate-500 dark:text-slate-400">Só um instante…</p>
+      </AuthLayout>
+    )
 
+  return (
+    <AuthLayout
+      subtitle={
+        mode === 'login'
+          ? 'Seu personal trainer e nutricionista digital'
+          : 'Crie sua conta e comece a evoluir'
+      }
+    >
+      {passwordReset && (
+        <p className="mb-4 rounded-xl bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400">
+          Senha redefinida. Entre com a nova senha.
+        </p>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         {mode === 'register' && (
           <input
             className="w-full field px-3 py-2 text-slate-900 dark:text-white"
@@ -85,22 +131,34 @@ export default function LoginPage() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full btn-primary py-2.5"
-        >
+        <button type="submit" disabled={loading} className="w-full btn-primary py-2.5">
           {loading ? 'Aguarde…' : mode === 'login' ? 'Entrar' : 'Cadastrar'}
         </button>
-
-        <button
-          type="button"
-          onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-          className="w-full text-sm text-emerald-700 dark:text-emerald-400 hover:underline"
-        >
-          {mode === 'login' ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre'}
-        </button>
       </form>
-    </div>
+
+      {mode === 'login' && (
+        <p className="mt-3 text-center">
+          <Link
+            to="/esqueci-a-senha"
+            className="text-sm text-slate-500 hover:text-emerald-700 hover:underline dark:text-slate-400 dark:hover:text-emerald-400"
+          >
+            Esqueci minha senha
+          </Link>
+        </p>
+      )}
+
+      <GoogleButton label={mode === 'login' ? 'Entrar com Google' : 'Cadastrar com Google'} />
+
+      <button
+        type="button"
+        onClick={() => {
+          setMode(mode === 'login' ? 'register' : 'login')
+          setError(null)
+        }}
+        className="mt-4 w-full text-sm text-emerald-700 dark:text-emerald-400 hover:underline"
+      >
+        {mode === 'login' ? 'Não tem conta? Cadastre-se' : 'Já tem conta? Entre'}
+      </button>
+    </AuthLayout>
   )
 }

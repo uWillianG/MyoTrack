@@ -74,8 +74,18 @@ public class PrivacyController(
         var user = await userManager.FindByIdAsync(userId.ToString());
         if (user is null)
             return NotFound();
-        if (!await userManager.CheckPasswordAsync(user, request.Password))
-            return BadRequest(new { error = "Senha incorreta." });
+
+        // Contas criadas pelo Google não têm senha: a confirmação é digitar o
+        // próprio e-mail — sem isso o titular ficaria sem como exercer a exclusão.
+        if (await userManager.HasPasswordAsync(user))
+        {
+            if (!await userManager.CheckPasswordAsync(user, request.Password))
+                return BadRequest(new { error = "Senha incorreta." });
+        }
+        else if (!string.Equals(request.Password?.Trim(), user.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new { error = "Para confirmar, digite o e-mail da sua conta." });
+        }
 
         // Coleta as chaves de mídia antes de apagar as linhas.
         var mediaKeys = new List<string>();
@@ -104,6 +114,7 @@ public class PrivacyController(
             await db.UserSubscriptions.Where(s => s.UserId == userId).ExecuteDeleteAsync();
             await db.ConsentRecords.Where(c => c.UserId == userId).ExecuteDeleteAsync();
             await db.RefreshTokens.Where(t => t.UserId == userId).ExecuteDeleteAsync();
+            await db.LoginCodes.Where(c => c.UserId == userId).ExecuteDeleteAsync();
             await db.UserProfiles.Where(p => p.UserId == userId).ExecuteDeleteAsync();
             await tx.CommitAsync();
         }

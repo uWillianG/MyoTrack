@@ -81,6 +81,15 @@
   .page-title {
     @apply font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white;
   }
+
+  /* Permite rolagem (ex.: menu com muitos links em telas estreitas) sem mostrar a barra. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Paleta de dataviz (referência validada — CVD-safe) */

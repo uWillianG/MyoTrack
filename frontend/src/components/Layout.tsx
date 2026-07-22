@@ -35,7 +35,7 @@ export default function Layout() {
                 Myo<span className="text-emerald-500">Track</span>
               </span>
             </span>
-            <nav className="flex gap-0.5 overflow-x-auto">
+            <nav className="flex gap-0.5 overflow-x-auto no-scrollbar">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.to}

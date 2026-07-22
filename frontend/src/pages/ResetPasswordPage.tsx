@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import AuthLayout from '../components/AuthLayout'
+import PasswordRules from '../components/PasswordRules'
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate()
@@ -58,13 +59,16 @@ export default function ResetPasswordPage() {
         <input
           className="w-full field px-3 py-2 text-slate-900 dark:text-white"
           type="password"
-          placeholder="Nova senha (mín. 8 caracteres)"
+          placeholder="Nova senha"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={8}
           autoFocus
         />
+
+        <PasswordRules password={password} />
+
         <input
           className="w-full field px-3 py-2 text-slate-900 dark:text-white"
           type="password"

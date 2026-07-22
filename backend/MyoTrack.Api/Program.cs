@@ -23,13 +23,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services
     .AddIdentityCore<ApplicationUser>(options =>
     {
+        // Mínimo de 8 caracteres com maiúscula, minúscula, número e símbolo.
         options.Password.RequiredLength = 8;
-        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireDigit = true;
+        options.Password.RequireNonAlphanumeric = true;
         options.User.RequireUniqueEmail = true;
     })
     .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddErrorDescriber<PortugueseIdentityErrorDescriber>()
+    // Composição não basta: "Senha@123" passa nas regras acima e está em todo
+    // dicionário de ataque. Estes dois cobrem o que as regras não pegam.
+    .AddPasswordValidator<CommonPasswordValidator>()
+    .AddPasswordValidator<UserAttributeSimilarityValidator>()
     .AddDefaultTokenProviders(); // tokens de redefinição de senha
 
 // Validade do link de redefinição — o texto do e-mail promete o mesmo prazo.

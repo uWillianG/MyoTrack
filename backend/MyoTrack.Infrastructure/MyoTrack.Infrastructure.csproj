@@ -19,6 +19,8 @@
     <!-- Fonte embutida para a análise ilustrada (containers não têm fontes do sistema). -->
     <EmbeddedResource Include="Assets\Fonts\DejaVuSans.ttf" />
     <EmbeddedResource Include="Assets\Fonts\DejaVuSans-Bold.ttf" />
+    <!-- Lista de senhas mais vazadas (do Django, BSD-3) — ver CommonPasswordValidator. -->
+    <EmbeddedResource Include="Assets\common-passwords.txt.gz" />
   </ItemGroup>
 
   <PropertyGroup>

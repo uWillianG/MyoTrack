@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import AuthLayout from '../components/AuthLayout'
 import GoogleButton from '../components/GoogleButton'
+import PasswordRules from '../components/PasswordRules'
 import { storeTokens, type AuthResponse } from '../lib/api'
 
 /** Mensagens dos erros que o callback do OAuth devolve na querystring. */
@@ -122,12 +123,14 @@ export default function LoginPage() {
         <input
           className="w-full field px-3 py-2 text-slate-900 dark:text-white"
           type="password"
-          placeholder="Senha (mín. 8 caracteres)"
+          placeholder="Senha"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={8}
         />
+
+        {mode === 'register' && <PasswordRules password={password} />}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
